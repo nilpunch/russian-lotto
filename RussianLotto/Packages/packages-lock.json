@@ -1,5 +1,11 @@
 {
   "dependencies": {
+    "com.bananaparty.behaviortree": {
+      "version": "file:com.bananaparty.behaviortree",
+      "depth": 0,
+      "source": "embedded",
+      "dependencies": {}
+    },
     "com.unity.2d.animation": {
       "version": "7.0.3",
       "depth": 1,
