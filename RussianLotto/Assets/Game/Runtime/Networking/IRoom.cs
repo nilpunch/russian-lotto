@@ -2,7 +2,7 @@
 
 namespace RussianLotto.Networking
 {
-    public interface IRoomNetwork : IDisposable
+    public interface IRoom : IDisposable
     {
         public bool IsConnectedToRoom { get; }
         public bool HasUnreadCommands { get; }

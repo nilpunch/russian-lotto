@@ -5,21 +5,21 @@ namespace RussianLotto.Application
 {
     public class ConnectToRandomRoom : BehaviorNode
     {
-        private readonly IRoomNetwork _roomNetwork;
+        private readonly IRoom _room;
 
-        public ConnectToRandomRoom(IRoomNetwork roomNetwork)
+        public ConnectToRandomRoom(IRoom room)
         {
-            _roomNetwork = roomNetwork;
+            _room = room;
         }
 
         public override BehaviorNodeStatus OnExecute(long time)
         {
             if (!Started)
             {
-                _roomNetwork.ConnectToRandomRoom();
+                _room.ConnectToRandomRoom();
             }
 
-            return _roomNetwork.IsConnectedToRoom ? BehaviorNodeStatus.Success : BehaviorNodeStatus.Running;
+            return _room.IsConnectedToRoom ? BehaviorNodeStatus.Success : BehaviorNodeStatus.Running;
         }
     }
 }

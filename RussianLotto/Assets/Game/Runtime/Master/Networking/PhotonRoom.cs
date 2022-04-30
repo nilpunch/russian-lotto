@@ -1,23 +1,26 @@
 ﻿using System;
+using Photon.Realtime;
 
 namespace RussianLotto.Networking
 {
-    public class RoomNetwork : IRoomNetwork
+    public class PhotonRoom : IRoom
     {
         private readonly ISocket _socket;
 
-        public RoomNetwork(ISocket socket)
+        public PhotonRoom(ISocket socket, LoadBalancingClient loadBalancingClient)
         {
             _socket = socket;
         }
-        
+
         public void Dispose()
         {
             throw new NotImplementedException();
         }
 
         public bool IsConnectedToRoom { get; }
+
         public bool HasUnreadCommands { get; }
+
         public void ConnectToRandomRoom()
         {
             throw new NotImplementedException();

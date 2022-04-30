@@ -17,11 +17,9 @@ namespace RussianLotto.Application
 
         private void Awake()
         {
-            var loadBalancingClient = new LoadBalancingClient();
-            var socket = new PhotonSocket(loadBalancingClient, _photonSettings);
-            _localClient = new LocalClient(socket, _viewport);
-
-            _masterClient = new MasterClient(loadBalancingClient, _photonSettings);
+            var networking = new PhotonNetwork(new LoadBalancingClient(), _photonSettings);
+            _localClient = new LocalClient(networking, _viewport);
+            _masterClient = new MasterClient(networking);
         }
 
         private void Update()

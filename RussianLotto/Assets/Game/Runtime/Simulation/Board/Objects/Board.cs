@@ -23,11 +23,6 @@ namespace RussianLotto.Client
             throw new System.NotImplementedException();
         }
 
-        public void Miss(int card, Vector2Int cellPosition)
-        {
-            throw new System.NotImplementedException();
-        }
-
         public void UpdateAllMissingNumbers(IReadOnlyAvailableNumbers availableNumbers)
         {
             throw new System.NotImplementedException();

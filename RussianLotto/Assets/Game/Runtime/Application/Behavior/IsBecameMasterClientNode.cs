@@ -1,20 +1,21 @@
 ﻿using BananaParty.BehaviorTree;
 using Photon.Realtime;
+using RussianLotto.Networking;
 
 namespace RussianLotto.Application
 {
     public class IsBecameMasterClientNode : BehaviorNode
     {
-        private readonly LoadBalancingClient _photon;
+        private readonly IMasterNetwork _masterNetwork;
 
-        public IsBecameMasterClientNode(LoadBalancingClient photon)
+        public IsBecameMasterClientNode(IMasterNetwork masterNetwork)
         {
-            _photon = photon;
+            _masterNetwork = masterNetwork;
         }
 
         public override BehaviorNodeStatus OnExecute(long time)
         {
-            return _photon.LocalPlayer.IsMasterClient ? BehaviorNodeStatus.Success : BehaviorNodeStatus.Failure;
+            return _masterNetwork.IsMasterClient ? BehaviorNodeStatus.Success : BehaviorNodeStatus.Failure;
         }
     }
 }

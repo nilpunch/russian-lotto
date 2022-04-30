@@ -5,16 +5,16 @@ namespace RussianLotto.Application
 {
     public class IsConnectedToRoom : BehaviorNode
     {
-        private readonly IRoomNetwork _roomNetwork;
+        private readonly IRoom _room;
 
-        public IsConnectedToRoom(IRoomNetwork roomNetwork)
+        public IsConnectedToRoom(IRoom room)
         {
-            _roomNetwork = roomNetwork;
+            _room = room;
         }
 
         public override BehaviorNodeStatus OnExecute(long time)
         {
-            return _roomNetwork.IsConnectedToRoom ? BehaviorNodeStatus.Success : BehaviorNodeStatus.Failure;
+            return _room.IsConnectedToRoom ? BehaviorNodeStatus.Success : BehaviorNodeStatus.Failure;
         }
     }
 }

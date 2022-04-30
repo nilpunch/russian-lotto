@@ -7,23 +7,22 @@ namespace RussianLotto.Client
 {
     public class LocalClient : IClient, IClientContext
     {
-        private readonly IRoomNetwork _roomNetwork;
+        private readonly IRoom _room;
         private readonly IViewport _viewport;
         private readonly BehaviorNode _behaviorTree;
 
-        public LocalClient(ISocket socket, IViewport viewport)
+        public LocalClient(INetwork network, IViewport viewport)
         {
-            _roomNetwork = new RoomNetwork(socket);
             _viewport = viewport;
 
             _behaviorTree = new SequenceNode(new IBehaviorNode[]
             {
                 new SelectorNode(new IBehaviorNode[]
                 {
-                    new IsConnectedToServer(socket),
+                    new IsConnectedToServer(network.Socket),
                     new TimeoutNode
                     (
-                        new ConnectToServer(socket),
+                        new ConnectToServer(network.Socket),
                         5000
                     ),
                     new WaitNode(1000),
@@ -31,19 +30,19 @@ namespace RussianLotto.Client
 
                 new SelectorNode(new IBehaviorNode[]
                 {
-                    new IsConnectedToRoom(_roomNetwork),
+                    new IsConnectedToRoom(network.Room),
                     new TimeoutNode
                     (
-                        new ConnectToRandomRoom(_roomNetwork),
+                        new ConnectToRandomRoom(network.Room),
                         5000
                     ),
                     new WaitNode(1000),
                 }, true, "ConnectToRandomRoom"),
 
-                new ParallelSequenceNode(new IBehaviorNode[]
+                new SequenceNode(new IBehaviorNode[]
                 {
-
-                }, "GameLoop")
+                    new WaitNode(1000),
+                }, true, "GameLoop")
             }, true, "ApplicationLoop");
         }
 
