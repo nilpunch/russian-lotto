@@ -1,11 +1,12 @@
 ﻿using BananaParty.BehaviorTree;
-using Photon.Realtime;
 using RussianLotto.Application;
+using RussianLotto.Behavior;
 using RussianLotto.Networking;
+using RussianLotto.View;
 
 namespace RussianLotto.Client
 {
-    public class MasterClient : IClient
+    public class MasterClient : IClient, IVisualization<ITreeGraph<IReadOnlyBehaviorNode>>
     {
         private readonly BehaviorNode _behaviorTree;
 
@@ -16,14 +17,19 @@ namespace RussianLotto.Client
                 new SequenceNode(new IBehaviorNode[]
                 {
                     new IsConnectedToServer(masterNetwork.Socket),
-                    new IsConnectedToRoom(masterNetwork.Room),
-                    new IsBecameMasterClientNode(masterNetwork),
-                }, true, "MasterClientRegistration"),
+                    new IsEnteredRoom(masterNetwork.Room),
+                    new IsBecameMasterClientNode(masterNetwork.Master),
+                }, true, "MasterClientDetection"),
 
-                new SelectorNode(new IBehaviorNode[]
-                {
-                    new WaitNode(1000),
-                }, true, "MasterClientLoop"),
+                new ConstantNode(BehaviorNodeStatus.Running),
+
+                // new RepeatNode
+                // (
+                //     new SelectorNode(new IBehaviorNode[]
+                //     {
+                //         new WaitNode(1000),
+                //     }, true, "MasterClientLoop")
+                // )
             }, true, "MasterClient");
         }
 
@@ -37,6 +43,11 @@ namespace RussianLotto.Client
 
         public void Dispose()
         {
+        }
+
+        public void Visualize(ITreeGraph<IReadOnlyBehaviorNode> view)
+        {
+            _behaviorTree.WriteToGraph(view);
         }
     }
 }

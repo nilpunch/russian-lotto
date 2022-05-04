@@ -1,9 +1,11 @@
 ﻿using System;
+using System.Collections.Generic;
 using Photon.Realtime;
+using UnityEngine;
 
 namespace RussianLotto.Networking
 {
-    public class PhotonSocket : ISocket
+    public class PhotonSocket : ISocket, IConnectionCallbacks
     {
         private readonly AppSettings _appSettings;
         private readonly LoadBalancingClient _photonClient;
@@ -12,9 +14,23 @@ namespace RussianLotto.Networking
         {
             _appSettings = appSettings;
             _photonClient = photonClient;
+            _photonClient.AddCallbackTarget(this);
+            _photonClient.StateChanged += OnClientStateChanged;
         }
 
-        public bool IsConnected => _photonClient.IsConnectedAndReady;
+        public void Dispose()
+        {
+            Disconnect();
+            _photonClient.RemoveCallbackTarget(this);
+            _photonClient.StateChanged -= OnClientStateChanged;
+        }
+
+        private void OnClientStateChanged(ClientState arg1, ClientState arg2)
+        {
+            //Debug.Log(arg1 + " -> " + arg2);
+        }
+
+        public bool IsConnected { get; private set; }
 
         public bool HasUnreadPayloadQueue { get; }
 
@@ -25,7 +41,12 @@ namespace RussianLotto.Networking
 
         public void Connect()
         {
-            _photonClient.ConnectUsingSettings(_appSettings);
+            // if (_photonClient.ReconnectAndRejoin())
+            //     return;
+
+            _photonClient.AppId = _appSettings.AppIdRealtime;
+            _photonClient.AppVersion = _appSettings.AppVersion;
+            _photonClient.ConnectToRegionMaster(_appSettings.FixedRegion);
         }
 
         public void Send(byte[] payloadBytes)
@@ -35,12 +56,42 @@ namespace RussianLotto.Networking
 
         public void Disconnect()
         {
-            _photonClient.Disconnect();
+            if (_photonClient.IsConnected)
+                _photonClient.Disconnect();
         }
 
-        public void Dispose()
+        public void OnConnected()
         {
-            Disconnect();
+            IsConnected = true;
+            Debug.Log("Connected!");
+
+
+        }
+
+        public void OnConnectedToMaster()
+        {
+            Debug.Log("Connected to Master!");
+        }
+
+        public void OnDisconnected(DisconnectCause cause)
+        {
+            IsConnected = false;
+            Debug.Log($"Disconnected due to: {cause.ToString()}");
+        }
+
+        public void OnRegionListReceived(RegionHandler regionHandler)
+        {
+            //throw new NotImplementedException();
+        }
+
+        public void OnCustomAuthenticationResponse(Dictionary<string, object> data)
+        {
+            //throw new NotImplementedException();
+        }
+
+        public void OnCustomAuthenticationFailed(string debugMessage)
+        {
+            //throw new NotImplementedException();
         }
     }
 }

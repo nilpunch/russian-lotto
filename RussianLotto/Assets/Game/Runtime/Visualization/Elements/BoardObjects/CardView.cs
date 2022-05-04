@@ -1,3 +1,7 @@
+#if UNITY_EDITOR
+using UnityEditor;
+#endif
+
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -14,17 +18,48 @@ namespace RussianLotto.View
         [SerializeField] private CellView _cellPrefab = null;
         [SerializeField] private Vector2Int _gridSize = Vector2Int.zero;
 
+        [Space, SerializeField] private RectTransform _controllableRect = null;
+        [SerializeField, Range(0f, 1f)] private float _offset = 0.1f;
+
         private void Awake()
         {
+            Rect rect = CalculateFitRect();
+
+            _controllableRect.anchorMax = Vector2.one * 0.5f;
+            _controllableRect.anchorMin = Vector2.one * 0.5f;
+            _controllableRect.localPosition = rect.center;
+            _controllableRect.SetSizeWithCurrentAnchors(RectTransform.Axis.Horizontal, rect.size.x);
+            _controllableRect.SetSizeWithCurrentAnchors(RectTransform.Axis.Vertical, rect.size.y);
+
             foreach ((Vector2Int cellIndex, Vector2 position, Vector2 size) in CalculateCellsPositions())
             {
                 CellView cellView = Instantiate(_cellPrefab, _gridRect);
+                cellView.RectTransform.anchorMax = Vector2.one * 0.5f;
+                cellView.RectTransform.anchorMin = Vector2.one * 0.5f;
                 cellView.RectTransform.anchoredPosition = position;
                 cellView.RectTransform.SetSizeWithCurrentAnchors(RectTransform.Axis.Horizontal, size.x);
                 cellView.RectTransform.SetSizeWithCurrentAnchors(RectTransform.Axis.Vertical, size.y);
                 cellView.CellPosition = cellIndex;
             }
         }
+
+        #if UNITY_EDITOR
+        [ContextMenu("Fix Position")]
+        private void FixPosition()
+        {
+            if (_controllableRect == null)
+                return;
+
+            Rect rect = CalculateFitRect();
+
+            _controllableRect.anchorMax = Vector2.one * 0.5f;
+            _controllableRect.anchorMin = Vector2.one * 0.5f;
+            _controllableRect.localPosition = rect.center;
+            _controllableRect.SetSizeWithCurrentAnchors(RectTransform.Axis.Horizontal, rect.size.x);
+            _controllableRect.SetSizeWithCurrentAnchors(RectTransform.Axis.Vertical, rect.size.y);
+            EditorUtility.SetDirty(_controllableRect);
+        }
+        #endif
 
         public void DrawCells(IReadOnlyCollection<IReadOnlyCell> cells)
         {
@@ -36,18 +71,16 @@ namespace RussianLotto.View
             }
         }
 
-        private void OnDrawGizmosSelected()
+        private void OnDrawGizmos()
         {
             if (_gridRect == null)
                 return;
 
             Gizmos.matrix = _gridRect.localToWorldMatrix;
-            Gizmos.color = Color.white;
+            Gizmos.color = Color.blue;
 
             foreach ((Vector2Int _, Vector2 position, Vector2 size) in CalculateCellsPositions())
-            {
                 Gizmos.DrawWireCube(position, size);
-            }
         }
 
         private IEnumerable<(Vector2Int cellIndex, Vector2 position, Vector2 size)> CalculateCellsPositions()
@@ -58,16 +91,19 @@ namespace RussianLotto.View
             if (_gridSize.x <= 0 || _gridSize.y <= 0)
                 yield break;
 
-            Rect gridRect = _gridRect.rect;
+            Rect originalRect = _gridRect.rect;
 
-            Vector2 cellSize = new(gridRect.size.x / _gridSize.x, gridRect.size.y / _gridSize.y);
+            Rect gridRectWithOffset = originalRect;
+            gridRectWithOffset.size *= _offset;
+
+            Vector2 cellSize = new(gridRectWithOffset.size.x / _gridSize.x, gridRectWithOffset.size.y / _gridSize.y);
             float minCellSize = Mathf.Min(cellSize.x, cellSize.y);
 
             Vector2 fittingCellSize = new(minCellSize, minCellSize);
 
             Vector2 firstCellPadding = fittingCellSize / 2f;
-            Vector2 centrationOffset = (_gridRect.rect.size - Vector2.Scale(fittingCellSize, _gridSize)) / 2f;
-            Vector2 firstCellPosition = _gridRect.rect.min + firstCellPadding + centrationOffset;
+            Vector2 centrationOffset = (originalRect.size - Vector2.Scale(fittingCellSize, _gridSize)) / 2f;
+            Vector2 firstCellPosition = originalRect.min + firstCellPadding + centrationOffset;
 
             for (int x = 0; x < _gridSize.x; ++x)
             {
@@ -79,5 +115,68 @@ namespace RussianLotto.View
                 }
             }
         }
+
+        private Rect CalculateFitRect()
+        {
+            Rect gridRect = _gridRect.rect;
+
+            gridRect.size *= _offset;
+
+            if (_gridSize.x <= 0 || _gridSize.y <= 0)
+                return gridRect;
+
+            Rect originalRect = _gridRect.rect;
+
+            Rect gridRectWithOffset = originalRect;
+            gridRectWithOffset.size *= _offset;
+
+            Vector2 cellSize = new(gridRectWithOffset.size.x / _gridSize.x, gridRectWithOffset.size.y / _gridSize.y);
+            float minCellSize = Mathf.Min(cellSize.x, cellSize.y);
+
+            Vector2 fittingCellSize = new(minCellSize, minCellSize);
+
+            Vector2 centrationOffset = (originalRect.size - Vector2.Scale(fittingCellSize, _gridSize)) / 2f;
+
+            return new Rect(gridRect.position + centrationOffset, new Vector2(fittingCellSize.x * _gridSize.x, fittingCellSize.y * _gridSize.y));
+        }
+#if UNITY_EDITOR
+        [MenuItem("CONTEXT/RectTransform/Pin to X")]
+        public static void PinAnchorToX(MenuCommand menuCommand)
+        {
+            RectTransform transform = (RectTransform)menuCommand.context;
+
+            var parentTransform = transform.parent.GetComponent<RectTransform>();
+
+            Rect containerRect = parentTransform.rect;
+
+            Vector2 normalizedPosition = new Vector2((transform.anchoredPosition.x + containerRect.size.x / 2f) / containerRect.size.x,
+                (transform.anchoredPosition.y + containerRect.size.y / 2f) / containerRect.size.y);
+
+            transform.anchorMin = new Vector2(normalizedPosition.x, transform.anchorMin.y);
+            transform.anchorMax = new Vector2(normalizedPosition.x, transform.anchorMax.y);
+            transform.anchoredPosition *= Vector2.up;
+
+            EditorUtility.SetDirty(transform);
+        }
+
+        [MenuItem("CONTEXT/RectTransform/Pin to Y")]
+        public static void PinAnchorToY(MenuCommand menuCommand)
+        {
+            RectTransform transform = (RectTransform)menuCommand.context;
+
+            var parentTransform = transform.parent.GetComponent<RectTransform>();
+
+            Rect containerRect = parentTransform.rect;
+
+            Vector2 normalizedPosition = new Vector2((transform.anchoredPosition.x + containerRect.size.x / 2f) / containerRect.size.x,
+                (transform.anchoredPosition.y + containerRect.size.y / 2f) / containerRect.size.y);
+
+            transform.anchorMin = new Vector2(transform.anchorMin.x, normalizedPosition.y);
+            transform.anchorMax = new Vector2(transform.anchorMax.x, normalizedPosition.y);
+            transform.anchoredPosition *= Vector2.right;
+
+            EditorUtility.SetDirty(transform);
+        }
+#endif
     }
 }

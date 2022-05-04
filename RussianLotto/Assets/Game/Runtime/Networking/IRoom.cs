@@ -1,16 +1,26 @@
 ﻿using System;
+using System.Collections.Generic;
+using RussianLotto.Client;
 
 namespace RussianLotto.Networking
 {
-    public interface IRoom : IDisposable
+    public interface IReadOnlyRoom
     {
-        public bool IsConnectedToRoom { get; }
-        public bool HasUnreadCommands { get; }
+        bool IsEntered { get; }
+        bool IsOpenToJoin { get; }
+        int MaxPlayersAmount { get; }
+        GameType GameType { get; }
+        bool ShuffledMode { get; }
+        IReadOnlyCollection<IPlayer> ConnectedPlayers { get; }
+        bool CanSendCommands { get; }
+    }
 
-        public void ConnectToRandomRoom();
-        public void ConnectToRoom(string roomName);
-        public void Disconnect();
+    public interface IRoom : IReadOnlyRoom, IDisposable
+    {
+        public void OpenToJoin();
+        public void CloseJoining();
 
-        public IClientCommand ReadCommand();
+        public void EnterRandom(GameType gameType, bool shuffled);
+        public void Exit();
     }
 }

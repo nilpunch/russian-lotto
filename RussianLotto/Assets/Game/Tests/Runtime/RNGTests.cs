@@ -24,6 +24,5 @@ namespace RussianLotto.Tests
 
             Assert.True(generated.All(value => value >= minValue && value < maxValue));
         }
-
     }
 }

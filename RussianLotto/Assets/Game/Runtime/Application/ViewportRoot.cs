@@ -4,11 +4,13 @@ using UnityEngine;
 
 namespace RussianLotto.Application
 {
-    public class ViewportRoot : MonoBehaviour, IViewport
+    public class ViewportRoot : MonoBehaviour, IViewport, ISimulationView
     {
         [SerializeField] private BoardView _boardView = null;
 
-        public IBoardView BoardView => _boardView;
+        public ISimulationView SimulationView => this;
+
+        public IBoardView Board => _boardView;
         public IAvailableNumbersView AvailableNumbers => throw new NotImplementedException();
     }
 }
