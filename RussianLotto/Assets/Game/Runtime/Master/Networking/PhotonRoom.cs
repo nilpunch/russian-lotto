@@ -39,7 +39,7 @@ namespace RussianLotto.Networking
         public bool IsOpenToJoin => _loadBalancingClient.CurrentRoom.IsOpen;
 
         public int MaxPlayersAmount { get; }
-        public GameState GameState { get; private set; }
+        public SimulationState SimulationState { get; private set; }
         public GameType GameType { get; private set; }
         public bool ShuffledMode { get; private set; }
         public IReadOnlyCollection<IPlayer> ConnectedPlayers => IsEntered

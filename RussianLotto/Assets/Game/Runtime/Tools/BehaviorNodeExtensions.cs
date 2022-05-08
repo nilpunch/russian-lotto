@@ -8,5 +8,10 @@ namespace RussianLotto.Tools
         {
             return new InverterNode(behaviorNode);
         }
+
+        public static IBehaviorNode Repeat(this IBehaviorNode behaviorNode, BehaviorNodeStatus? behaviorNodeStatus = null)
+        {
+            return new RepeatNode(behaviorNode, behaviorNodeStatus);
+        }
     }
 }

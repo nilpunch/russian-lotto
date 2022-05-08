@@ -1,5 +1,4 @@
 ﻿using BananaParty.BehaviorTree;
-using RussianLotto.Application;
 using RussianLotto.Behavior;
 using RussianLotto.Networking;
 using RussianLotto.View;

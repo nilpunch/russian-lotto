@@ -1,5 +1,4 @@
-﻿using System;
-using BananaParty.BehaviorTree;
+﻿using BananaParty.BehaviorTree;
 using TMPro;
 using UnityEngine;
 

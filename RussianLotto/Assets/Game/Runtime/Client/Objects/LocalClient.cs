@@ -1,5 +1,4 @@
 ﻿using BananaParty.BehaviorTree;
-using RussianLotto.Application;
 using RussianLotto.Behavior;
 using RussianLotto.Input;
 using RussianLotto.Networking;
@@ -16,6 +15,7 @@ namespace RussianLotto.Client
         {
             var session = new Session();
 
+            // In progress
             _behaviorTree = new SequenceNode(new IBehaviorNode[]
             {
                 new SequenceNode(new IBehaviorNode[]
@@ -30,7 +30,7 @@ namespace RussianLotto.Client
                         new DeactivateInputNode(input.Lobby.GameTypeSwitch).Invert(),
 
                         new ConstantNode(BehaviorNodeStatus.Success)
-                    }, true, "DisableInputs"),
+                    }, true, "RefreshAllInputs"),
 
                     new SelectorNode(new IBehaviorNode[]
                     {
@@ -65,22 +65,38 @@ namespace RussianLotto.Client
                     new DeactivateInputNode(input.Lobby.ShuffledSwitch),
                     new DeactivateInputNode(input.Lobby.GameTypeSwitch),
 
-                    new WaitButtonClickNode(input.LeaveRoom),
+                    new ParallelSelectorNode(new IBehaviorNode[]
+                    {
+                        new SequenceNode(new IBehaviorNode[]
+                        {
+                            new IsButtonPressedNode(input.LeaveRoom),
+                            new ExitRoomNode(network.Room),
+                        }, false, "ExitFromRoom").Repeat(BehaviorNodeStatus.Success),
 
-                    new ExitRoomNode(network.Room),
+                        new SequenceNode(new IBehaviorNode[]
+                        {
+                            new IsSessionReadyNode(session),
 
-                    new ConstantNode(BehaviorNodeStatus.Running),
+                            new WaitNode(5000),
 
-                    // new SequenceNode(new IBehaviorNode[]
-                                    // {
-                                    //
-                                    //     new RepeatNode
-                                    //     (
-                                    //         new SimulationRenderingNode(viewport.SimulationView, session.Simulation)
-                                    //     ),
-                                    //
-                                    //     new WaitNode(1000),
-                                    // }, true, "GameLoop")
+
+
+                        }, false, "SessionLoop").Repeat(),
+
+                        new SelectorNode(new IBehaviorNode[]
+                        {
+                            new SequenceNode(new IBehaviorNode[]
+                            {
+                                new IsSessionReadyNode(session),
+                                new RenderSimulationNode(viewport.SimulationView, session.Simulation)
+                            }),
+
+                            new ConstantNode(BehaviorNodeStatus.Success)
+                        }, false, "Rendering").Repeat(),
+
+                    }, "RoomLoop"),
+
+                    new ConstantNode(BehaviorNodeStatus.Success),
                 }, true, "ApplicationLoop"),
             }, false, "ApplicationPreparation");
         }
