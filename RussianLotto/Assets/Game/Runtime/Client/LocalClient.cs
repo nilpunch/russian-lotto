@@ -90,7 +90,6 @@ namespace RussianLotto.Client
                         new SequenceNode(new IBehaviorNode[]
                         {
                             new ExecuteCommandsNode<ISession>(network.Room.SessionInput, session, "Network"),
-                            new ExecuteCommandsNode<ISession>(input.Session.Commands, session, "Player"),
                         }, false, "ExecuteCommands").Repeat(),
 
                         new SequenceNode(new IBehaviorNode[]
@@ -113,6 +112,7 @@ namespace RussianLotto.Client
                             new ParallelSelectorNode(new IBehaviorNode[]
                             {
                                 new IsSimulationFinishedNode(session).Repeat(BehaviorNodeStatus.Success),
+                                new ExecuteCommandsNode<ISession>(input.Session.Commands, session, "Player").Repeat(),
                                 new ExecuteSimulationFrameNode(session).Repeat(),
                             }),
 

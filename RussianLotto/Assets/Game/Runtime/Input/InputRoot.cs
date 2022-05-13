@@ -1,5 +1,4 @@
-﻿using RussianLotto.Input;
-using UnityEngine;
+﻿using UnityEngine;
 
 namespace RussianLotto.Input
 {

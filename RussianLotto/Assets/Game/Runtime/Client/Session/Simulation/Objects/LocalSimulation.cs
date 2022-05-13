@@ -1,12 +1,13 @@
 ﻿using System;
 using RussianLotto.View;
+using UnityEngine;
 
 namespace RussianLotto.Client
 {
     public class LocalSimulation : ISimulation
     {
-        private readonly IBoard _board;
         private readonly IAvailableNumbers _availableNumbers;
+        private readonly IBoard _board;
 
         public LocalSimulation(IBoard board, IAvailableNumbers availableNumbers)
         {
@@ -43,6 +44,14 @@ namespace RussianLotto.Client
                 throw new InvalidOperationException();
 
             State = SimulationState.Finished;
+        }
+
+        public void TryMarkCell(int card, Vector2Int cellPosition)
+        {
+            if (_availableNumbers.IsAvailable(_board.GetNumberAt(card, cellPosition)) && _board.IsAvailable(card, cellPosition))
+            {
+                _board.Mark(card, cellPosition);
+            }
         }
 
         public void Visualize(ISimulationView view)

@@ -6,6 +6,8 @@ namespace RussianLotto.Client
     {
         void Mark(int card, Vector2Int cellPosition);
 
+        int GetNumberAt(int cardIndex, Vector2Int cellPosition);
+
         void UpdateAllMissingNumbers(IReadOnlyAvailableNumbers availableNumbers);
     }
 }

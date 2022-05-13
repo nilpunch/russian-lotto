@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using RussianLotto.View;
 using UnityEngine;
 
@@ -18,13 +19,7 @@ namespace RussianLotto.Client
 
         public bool IsWin()
         {
-            foreach (var card in _cards)
-            {
-                if (card.IsComplete())
-                    return true;
-            }
-
-            return false;
+            return _cards.Any(card => card.IsComplete());
         }
 
         public bool IsAvailable(int card, Vector2Int cellPosition)
@@ -38,6 +33,11 @@ namespace RussianLotto.Client
                 throw new InvalidOperationException();
 
             _cards[card].Mark(cellPosition);
+        }
+
+        public int GetNumberAt(int cardIndex, Vector2Int cellPosition)
+        {
+            return _cards[cardIndex].Cells.FirstOrDefault(cell => cell.Position == cellPosition)?.Number ?? -1;
         }
 
         public void UpdateAllMissingNumbers(IReadOnlyAvailableNumbers availableNumbers)

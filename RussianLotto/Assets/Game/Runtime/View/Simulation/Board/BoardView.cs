@@ -10,6 +10,12 @@ namespace RussianLotto.View
         [SerializeField] private MissingNumberView _missingNumberView;
         [SerializeField] private CardView[] _cards;
 
+        private void Awake()
+        {
+            for (int i = 0; i < _cards.Length; ++i)
+                _cards[i].CardIndex = i;
+        }
+
         public void DrawCards(IReadOnlyCollection<IReadOnlyCard> cards)
         {
             foreach ((IReadOnlyCard card, CardView view) in cards.Zip(_cards, (card, view) => (card, view)))
@@ -18,12 +24,12 @@ namespace RussianLotto.View
 
         public void DrawLastMissingNumber(int lastMissingNumber)
         {
-            //_missingNumberView.Show(lastMissingNumber);
+            _missingNumberView.Show(lastMissingNumber);
         }
 
         public void HideLastMissingNumber()
         {
-            //_missingNumberView.Hide();
+            _missingNumberView.Hide();
         }
     }
 }

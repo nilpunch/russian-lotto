@@ -12,14 +12,15 @@ namespace RussianLotto.View
 {
     public class CardView : MonoBehaviour
     {
-        [SerializeField] private List<CellView> _cells;
-
         [Space, SerializeField] private RectTransform _gridRect;
         [SerializeField] private CellView _cellPrefab;
         [SerializeField] private Vector2Int _gridSize = Vector2Int.zero;
 
         [Space, SerializeField] private RectTransform _controllableRect;
         [SerializeField, Range(0f, 1f)] private float _offset = 0.1f;
+
+        public int CardIndex { get; set; }
+        public List<CellView> Cells { get; private set; }
 
         private void Awake()
         {
@@ -31,6 +32,7 @@ namespace RussianLotto.View
             _controllableRect.SetSizeWithCurrentAnchors(RectTransform.Axis.Horizontal, rect.size.x);
             _controllableRect.SetSizeWithCurrentAnchors(RectTransform.Axis.Vertical, rect.size.y);
 
+            Cells = new List<CellView>();
             foreach ((Vector2Int cellIndex, Vector2 position, Vector2 size) in CalculateCellsPositions())
             {
                 CellView cellView = Instantiate(_cellPrefab, _gridRect);
@@ -40,7 +42,7 @@ namespace RussianLotto.View
                 cellView.RectTransform.SetSizeWithCurrentAnchors(RectTransform.Axis.Horizontal, size.x);
                 cellView.RectTransform.SetSizeWithCurrentAnchors(RectTransform.Axis.Vertical, size.y);
                 cellView.CellPosition = cellIndex;
-                _cells.Add(cellView);
+                Cells.Add(cellView);
             }
         }
 
@@ -64,14 +66,14 @@ namespace RussianLotto.View
 
         public void DrawCells(IReadOnlyCollection<IReadOnlyCell> cells)
         {
-            foreach (var cellView in _cells)
+            foreach (var cellView in Cells)
             {
                 cellView.SetStatus(CellStatus.Zero);
             }
 
             foreach (var cell in cells)
             {
-                CellView cellView = _cells.First(view => view.CellPosition == cell.Position);
+                CellView cellView = Cells.First(view => view.CellPosition == cell.Position);
                 cellView.SetNumber(cell.Number);
                 cellView.SetStatus(cell.Status);
             }

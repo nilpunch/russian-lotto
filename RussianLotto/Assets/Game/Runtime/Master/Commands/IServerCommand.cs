@@ -1,5 +1,4 @@
-﻿using RussianLotto.Client;
-using RussianLotto.Command;
+﻿using RussianLotto.Command;
 
 namespace RussianLotto.Master
 {
