@@ -1,5 +1,9 @@
+using ExitGames.Client.Photon;
 using Photon.Realtime;
 using RussianLotto.Client;
+using RussianLotto.Command;
+using RussianLotto.Input;
+using RussianLotto.Master;
 using RussianLotto.Networking;
 using RussianLotto.View;
 using UnityEngine;
@@ -8,12 +12,12 @@ namespace RussianLotto.Application
 {
     public class Application : MonoBehaviour
     {
-        [SerializeField] private BehaviorTreeView _localClientTree = null;
-        [SerializeField] private BehaviorTreeView _masterClientTree = null;
+        [SerializeField] private BehaviorTreeView _localClientTree;
+        [SerializeField] private BehaviorTreeView _masterClientTree;
 
-        [Space, SerializeField] private ViewportRoot _viewport = null;
-        [SerializeField] private InputRoot _inputRoot = null;
-        [SerializeField] private AppSettings _photonSettings = null;
+        [Space, SerializeField] private ViewportRoot _viewport;
+        [SerializeField] private InputRoot _inputRoot;
+        [SerializeField] private AppSettings _photonSettings;
 
         private LocalClient _localClient;
         private MasterClient _masterClient;
@@ -21,7 +25,8 @@ namespace RussianLotto.Application
 
         private void Start()
         {
-            _photonSettings.AppVersion = UnityEngine.Application.version;
+            SetupPhoton();
+
             _network = new PhotonNetwork(new LoadBalancingClient(), _photonSettings);
             _localClient = new LocalClient(_network, _viewport, _inputRoot);
             _masterClient = new MasterClient(_network);
@@ -29,7 +34,7 @@ namespace RussianLotto.Application
 
         private void Update()
         {
-            _network.Master.DispatchCommands();
+            _network.DispatchCommands();
 
             long time = (long)(Time.time * 1000f);
 
@@ -51,10 +56,21 @@ namespace RussianLotto.Application
 
         private void OnDestroy()
         {
-            _network.Room.Dispose();
-            _network.Socket.Dispose();
-            _masterClient.Dispose();
-            _localClient.Dispose();
+            _network.Dispose();
+        }
+
+        private void OnApplicationQuit()
+        {
+            _network.Dispose();
+        }
+
+        private void SetupPhoton()
+        {
+            _photonSettings.AppVersion = UnityEngine.Application.version;
+
+            PhotonPeer.RegisterType(typeof(CreateSimulationCommand), 0,
+                PhotonMarshal.Serialize<CreateSimulationCommand>,
+                PhotonMarshal.Deserialize<CreateSimulationCommand>);
         }
     }
 }

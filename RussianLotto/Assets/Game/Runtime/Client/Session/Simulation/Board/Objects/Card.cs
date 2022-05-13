@@ -42,10 +42,17 @@ namespace RussianLotto.Client
             _cells.Where(cell => cell.Position == cellPosition && cell.IsAvailable).FirstOrDefault()?.Miss();
         }
 
-        public void UpdateMissingCells(int number)
+        public bool UpdateMissingCells(int number)
         {
+            bool missCell = false;
+
             foreach (var cell in _cells.Where(cell => cell.Number == number && cell.IsAvailable))
+            {
+                missCell = true;
                 cell.Miss();
+            }
+
+            return missCell;
         }
     }
 }

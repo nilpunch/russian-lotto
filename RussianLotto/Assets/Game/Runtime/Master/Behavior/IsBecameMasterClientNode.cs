@@ -1,13 +1,13 @@
 ﻿using BananaParty.BehaviorTree;
 using RussianLotto.Networking;
 
-namespace RussianLotto.Behavior
+namespace RussianLotto.Master
 {
     public class IsBecameMasterClientNode : BehaviorNode
     {
-        private readonly IMaster _master;
+        private readonly IMasterNetwork _master;
 
-        public IsBecameMasterClientNode(IMaster master)
+        public IsBecameMasterClientNode(IMasterNetwork master)
         {
             _master = master;
         }

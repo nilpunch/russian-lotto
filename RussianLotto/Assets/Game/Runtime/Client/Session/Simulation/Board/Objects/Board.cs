@@ -8,10 +8,12 @@ namespace RussianLotto.Client
     public class Board : IBoard
     {
         private readonly IReadOnlyList<ICard> _cards;
+        private int _lastMissedNumber;
 
         public Board(IReadOnlyList<ICard> cards)
         {
             _cards = cards;
+            _lastMissedNumber = -1;
         }
 
         public bool IsWin()
@@ -43,13 +45,19 @@ namespace RussianLotto.Client
             foreach (int number in availableNumbers.Missed)
             {
                 foreach(var card in _cards)
-                    card.UpdateMissingCells(number);
+                    if (card.UpdateMissingCells(number))
+                        _lastMissedNumber = number;
             }
         }
 
         public void Visualize(IBoardView view)
         {
-            throw new System.NotImplementedException();
+            view.DrawCards(_cards);
+
+            if (_lastMissedNumber == -1)
+                view.HideLastMissingNumber();
+            else
+                view.DrawLastMissingNumber(_lastMissedNumber);
         }
     }
 }

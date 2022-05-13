@@ -4,6 +4,6 @@ namespace RussianLotto.Client
 {
     public interface INumbers
     {
-        IReadOnlyCollection<int> Collection { get; }
+        IReadOnlyList<int> Collection { get; }
     }
 }

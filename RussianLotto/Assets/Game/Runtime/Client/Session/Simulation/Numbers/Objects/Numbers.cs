@@ -4,11 +4,11 @@ namespace RussianLotto.Client
 {
     public class Numbers : INumbers
     {
-        public Numbers(IReadOnlyCollection<int> collection)
+        public Numbers(IReadOnlyList<int> collection)
         {
             Collection = collection;
         }
 
-        public IReadOnlyCollection<int> Collection { get; }
+        public IReadOnlyList<int> Collection { get; }
     }
 }

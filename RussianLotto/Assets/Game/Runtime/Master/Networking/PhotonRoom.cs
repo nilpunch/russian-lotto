@@ -4,34 +4,41 @@ using System.Linq;
 using ExitGames.Client.Photon;
 using Photon.Realtime;
 using RussianLotto.Client;
+using RussianLotto.Command;
+using RussianLotto.Networking;
 using UnityEngine;
+using Player = RussianLotto.Networking.Player;
 
-namespace RussianLotto.Networking
+namespace RussianLotto.Master
 {
-    public class PhotonRoom : IRoom, IMatchmakingCallbacks
+    public class PhotonRoom : IRoom, IMatchmakingCallbacks, IOnEventCallback
     {
+        private const int ClientCommandsCode = 0;
+        private const int ServerCommandsCode = 1;
+
         private const string GameTypeProperty = "gameType";
         private const string ShuffledProperty = "shuffled";
 
-        private readonly ISocket _socket;
         private readonly LoadBalancingClient _loadBalancingClient;
+
+        private readonly CommandsQueue<ISessionCommand> _sessionInputQueue;
 
         private string _roomName = string.Empty;
         private bool _tryingRejoining;
         private bool _rejoinShuffleMode;
         private GameType _rejoinGameType;
 
-        public PhotonRoom(int maxPlayersAmount, ISocket socket, LoadBalancingClient loadBalancingClient)
+        public PhotonRoom(int maxPlayersAmount, LoadBalancingClient loadBalancingClient)
         {
             MaxPlayersAmount = maxPlayersAmount;
-            _socket = socket;
             _loadBalancingClient = loadBalancingClient;
             _loadBalancingClient.AddCallbackTarget(this);
+
+            _sessionInputQueue = new CommandsQueue<ISessionCommand>();
         }
 
         public void Dispose()
         {
-            _socket.Dispose();
             _loadBalancingClient.RemoveCallbackTarget(this);
         }
 
@@ -39,14 +46,36 @@ namespace RussianLotto.Networking
         public bool IsOpenToJoin => _loadBalancingClient.CurrentRoom.IsOpen;
 
         public int MaxPlayersAmount { get; }
-        public SimulationState SimulationState { get; private set; }
         public GameType GameType { get; private set; }
         public bool ShuffledMode { get; private set; }
+
         public IReadOnlyCollection<IPlayer> ConnectedPlayers => IsEntered
-                ? _loadBalancingClient.CurrentRoom.Players.Values.Select(player => new Player(player.NickName)).ToArray()
-                : ArraySegment<IPlayer>.Empty;
+            ? _loadBalancingClient.CurrentRoom.Players.Values.Select(player => new Player(player.NickName)).ToArray()
+            : ArraySegment<IPlayer>.Empty;
 
         public bool CanSendCommands => _loadBalancingClient.IsConnectedAndReady;
+
+        public ICommandInput<ISessionCommand> SessionInput => _sessionInputQueue;
+
+        public void SendToServer(IServerCommand command)
+        {
+            if (CanSendCommands == false)
+                throw new InvalidOperationException();
+
+            RaiseEventOptions raiseEventOptions = new RaiseEventOptions {Receivers = ReceiverGroup.MasterClient};
+
+            _loadBalancingClient.OpRaiseEvent(ServerCommandsCode, command, raiseEventOptions, SendOptions.SendReliable);
+        }
+
+        public void SendToClients(object command)
+        {
+            if (CanSendCommands == false)
+                throw new InvalidOperationException();
+
+            RaiseEventOptions raiseEventOptions = new RaiseEventOptions {Receivers = ReceiverGroup.All};
+
+            _loadBalancingClient.OpRaiseEvent(ClientCommandsCode, command, raiseEventOptions, SendOptions.SendReliable);
+        }
 
         public void OpenToJoin()
         {
@@ -58,14 +87,10 @@ namespace RussianLotto.Networking
 
         public void CloseJoining()
         {
-            throw new NotImplementedException();
         }
 
         public void EnterRandom(GameType gameType, bool shuffled)
         {
-            if (_socket.IsConnected == false)
-                throw new InvalidOperationException();
-
             if (CanSendCommands == false)
                 throw new InvalidOperationException();
 
@@ -92,6 +117,23 @@ namespace RussianLotto.Networking
         }
 
         #region PhotonCallbacks
+
+        public void OnEvent(EventData photonEvent)
+        {
+            Debug.Log("Some event happened: " + photonEvent.Code + photonEvent.CustomData?.GetType().Name);
+
+            // Ignoring commands to MasterClient
+            if (photonEvent.Code == ServerCommandsCode)
+                return;
+
+            switch (photonEvent.CustomData)
+            {
+                case ISessionCommand command:
+                    _sessionInputQueue.PushCommand(command);
+                    break;
+            }
+        }
+
         public void OnFriendListUpdate(List<FriendInfo> friendList)
         {
         }
@@ -131,20 +173,14 @@ namespace RussianLotto.Networking
         {
             Debug.Log("Room Left!");
         }
+
         #endregion
 
         private void JoinOrCreateRoom(GameType gameType, bool shuffled)
         {
-            Hashtable roomProperties = new()
-            {
-                { GameTypeProperty, gameType },
-                { ShuffledProperty, shuffled }
-            };
+            Hashtable roomProperties = new() {{GameTypeProperty, gameType}, {ShuffledProperty, shuffled}};
 
-            OpJoinRandomRoomParams joinRandomRoomParams = new()
-            {
-                ExpectedCustomRoomProperties = roomProperties,
-            };
+            OpJoinRandomRoomParams joinRandomRoomParams = new() {ExpectedCustomRoomProperties = roomProperties,};
 
             EnterRoomParams enterRoomParams = new()
             {

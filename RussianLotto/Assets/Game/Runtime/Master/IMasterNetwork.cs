@@ -5,6 +5,8 @@
     /// </summary>
     public interface IMasterNetwork : INetwork
     {
-        public IMaster Master { get; }
+        public bool IsMasterClient { get; }
+
+        public void DispatchCommands();
     }
 }

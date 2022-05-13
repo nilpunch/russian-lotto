@@ -1,5 +1,4 @@
-﻿using RussianLotto.Networking;
-using RussianLotto.View;
+﻿using RussianLotto.View;
 
 namespace RussianLotto.Client
 {

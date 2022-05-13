@@ -1,9 +1,9 @@
-﻿namespace RussianLotto.Networking
+﻿namespace RussianLotto.Client
 {
     public enum SimulationState
     {
         Idle,
         Game,
-        Finish
+        Finished
     }
 }

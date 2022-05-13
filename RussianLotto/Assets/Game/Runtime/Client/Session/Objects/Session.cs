@@ -8,7 +8,7 @@ namespace RussianLotto.Client
 
         public bool HasSimulation => _localSimulation != null;
 
-        public ISimulation Simulation => HasSimulation ? throw new InvalidOperationException() : _localSimulation;
+        public ISimulation Simulation => HasSimulation ? _localSimulation : throw new InvalidOperationException();
 
         public void GenerateSimulation(int seed, GameType gameType, bool shuffled)
         {
@@ -31,7 +31,7 @@ namespace RussianLotto.Client
             var boardFactory = new BoardFactory(3, cardFactory);
             var board = boardFactory.Create();
 
-            var availableNumbers = new AvailableNumbers(3, 5, numbers);
+            var availableNumbers = new AvailableNumbers(100, 5, numbers);
             _localSimulation = new LocalSimulation(board, availableNumbers);
         }
 

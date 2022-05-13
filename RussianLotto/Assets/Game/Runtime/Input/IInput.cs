@@ -2,9 +2,7 @@
 {
     public interface IInput
     {
-        public IButtonElement ConnectToRandomRoom { get; }
-        public IButtonElement LeaveRoom { get; }
-
-        public ILobbyInput Lobby { get; }
+        public IMainMenuInput MainMenu { get; }
+        public ISessionInput Session { get; }
     }
 }

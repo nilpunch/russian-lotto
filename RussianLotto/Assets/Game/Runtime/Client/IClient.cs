@@ -1,8 +1,6 @@
-﻿using System;
-
-namespace RussianLotto.Client
+﻿namespace RussianLotto.Client
 {
-    public interface IClient : IGameLoop, IDisposable
+    public interface IClient : IGameLoop
     {
 
     }

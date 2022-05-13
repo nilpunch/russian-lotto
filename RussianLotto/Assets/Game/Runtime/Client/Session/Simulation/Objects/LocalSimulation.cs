@@ -1,5 +1,4 @@
 ﻿using System;
-using RussianLotto.Networking;
 using RussianLotto.View;
 
 namespace RussianLotto.Client
@@ -26,7 +25,7 @@ namespace RussianLotto.Client
             _availableNumbers.ExecuteFrame(time);
             _board.UpdateAllMissingNumbers(_availableNumbers);
 
-            if (_board.IsWin())
+            if (_board.IsWin() || _availableNumbers.IsEnded)
                 FinishGame();
         }
 
@@ -43,7 +42,7 @@ namespace RussianLotto.Client
             if (State != SimulationState.Game)
                 throw new InvalidOperationException();
 
-            State = SimulationState.Finish;
+            State = SimulationState.Finished;
         }
 
         public void Visualize(ISimulationView view)

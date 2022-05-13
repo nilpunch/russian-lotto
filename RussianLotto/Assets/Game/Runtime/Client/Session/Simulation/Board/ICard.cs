@@ -7,6 +7,6 @@ namespace RussianLotto.Client
         void Mark(Vector2Int cellPosition);
         void Miss(Vector2Int cellPosition);
 
-        void UpdateMissingCells(int number);
+        bool UpdateMissingCells(int number);
     }
 }

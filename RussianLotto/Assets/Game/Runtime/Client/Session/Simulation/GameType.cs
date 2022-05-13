@@ -1,6 +1,6 @@
 ﻿namespace RussianLotto.Client
 {
-    public enum GameType
+    public enum GameType : byte
     {
         Classic,
         Fast,

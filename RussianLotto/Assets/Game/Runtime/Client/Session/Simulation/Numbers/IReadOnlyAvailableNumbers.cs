@@ -8,6 +8,8 @@ namespace RussianLotto.Client
         IEnumerable<int> Available { get; }
         IEnumerable<int> Missed { get; }
 
+        bool IsEnded { get; }
+
         bool IsAvailable(int number);
     }
 }
