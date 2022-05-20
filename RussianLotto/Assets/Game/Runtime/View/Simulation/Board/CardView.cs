@@ -3,16 +3,19 @@ using UnityEditor;
 #endif
 
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using RussianLotto.Client;
 using UnityEngine;
+using UnityEngine.UI;
 
 namespace RussianLotto.View
 {
     public class CardView : MonoBehaviour
     {
         [Space, SerializeField] private RectTransform _gridRect;
+        [SerializeField] private RectTransform _cellsParent;
         [SerializeField] private CellView _cellPrefab;
         [SerializeField] private Vector2Int _gridSize = Vector2Int.zero;
 
@@ -22,20 +25,18 @@ namespace RussianLotto.View
         public int CardIndex { get; set; }
         public List<CellView> Cells { get; private set; }
 
-        private void Awake()
-        {
-            Rect rect = CalculateFitRect();
+        public bool Initialized { get; private set; }
 
-            _controllableRect.anchorMax = Vector2.one * 0.5f;
-            _controllableRect.anchorMin = Vector2.one * 0.5f;
-            _controllableRect.localPosition = rect.center;
-            _controllableRect.SetSizeWithCurrentAnchors(RectTransform.Axis.Horizontal, rect.size.x);
-            _controllableRect.SetSizeWithCurrentAnchors(RectTransform.Axis.Vertical, rect.size.y);
+        private IEnumerator Start()
+        {
+            yield return null;
+
+            Initialized = true;
 
             Cells = new List<CellView>();
             foreach ((Vector2Int cellIndex, Vector2 position, Vector2 size) in CalculateCellsPositions())
             {
-                CellView cellView = Instantiate(_cellPrefab, _gridRect);
+                CellView cellView = Instantiate(_cellPrefab, _cellsParent);
                 cellView.RectTransform.anchorMax = Vector2.one * 0.5f;
                 cellView.RectTransform.anchorMin = Vector2.one * 0.5f;
                 cellView.RectTransform.anchoredPosition = position;
@@ -46,7 +47,7 @@ namespace RussianLotto.View
             }
         }
 
-        #if UNITY_EDITOR
+#if UNITY_EDITOR
         [ContextMenu("Fix Position")]
         private void FixPosition()
         {
@@ -54,6 +55,8 @@ namespace RussianLotto.View
                 return;
 
             Rect rect = CalculateFitRect();
+
+            Undo.RecordObject(_controllableRect, "FixControllableRect");
 
             _controllableRect.anchorMax = Vector2.one * 0.5f;
             _controllableRect.anchorMin = Vector2.one * 0.5f;
@@ -147,44 +150,5 @@ namespace RussianLotto.View
 
             return new Rect(gridRect.position + centrationOffset, new Vector2(fittingCellSize.x * _gridSize.x, fittingCellSize.y * _gridSize.y));
         }
-#if UNITY_EDITOR
-        [MenuItem("CONTEXT/RectTransform/Pin to X")]
-        public static void PinAnchorToX(MenuCommand menuCommand)
-        {
-            RectTransform transform = (RectTransform)menuCommand.context;
-
-            var parentTransform = transform.parent.GetComponent<RectTransform>();
-
-            Rect containerRect = parentTransform.rect;
-
-            Vector2 normalizedPosition = new Vector2((transform.anchoredPosition.x + containerRect.size.x / 2f) / containerRect.size.x,
-                (transform.anchoredPosition.y + containerRect.size.y / 2f) / containerRect.size.y);
-
-            transform.anchorMin = new Vector2(normalizedPosition.x, transform.anchorMin.y);
-            transform.anchorMax = new Vector2(normalizedPosition.x, transform.anchorMax.y);
-            transform.anchoredPosition *= Vector2.up;
-
-            EditorUtility.SetDirty(transform);
-        }
-
-        [MenuItem("CONTEXT/RectTransform/Pin to Y")]
-        public static void PinAnchorToY(MenuCommand menuCommand)
-        {
-            RectTransform transform = (RectTransform)menuCommand.context;
-
-            var parentTransform = transform.parent.GetComponent<RectTransform>();
-
-            Rect containerRect = parentTransform.rect;
-
-            Vector2 normalizedPosition = new Vector2((transform.anchoredPosition.x + containerRect.size.x / 2f) / containerRect.size.x,
-                (transform.anchoredPosition.y + containerRect.size.y / 2f) / containerRect.size.y);
-
-            transform.anchorMin = new Vector2(transform.anchorMin.x, normalizedPosition.y);
-            transform.anchorMax = new Vector2(transform.anchorMax.x, normalizedPosition.y);
-            transform.anchoredPosition *= Vector2.right;
-
-            EditorUtility.SetDirty(transform);
-        }
-#endif
     }
 }

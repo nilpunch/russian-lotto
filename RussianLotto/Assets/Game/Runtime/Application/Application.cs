@@ -29,7 +29,8 @@ namespace RussianLotto.Application
 
             _network = new PhotonNetwork(new LoadBalancingClient(), _photonSettings);
             _localClient = new LocalClient(_network, _viewport, _inputRoot);
-            _masterClient = new MasterClient(_network);
+
+            _masterClient = new MasterClient(_network, _localClient.Session);
         }
 
         private void Update()
@@ -64,13 +65,30 @@ namespace RussianLotto.Application
             _network.Dispose();
         }
 
+        #region PhotonTrash
+
+        private byte _registeredCommandsCounter = 0;
+
         private void SetupPhoton()
         {
             _photonSettings.AppVersion = UnityEngine.Application.version;
 
-            PhotonPeer.RegisterType(typeof(CreateSimulationCommand), 0,
-                PhotonMarshal.Serialize<CreateSimulationCommand>,
-                PhotonMarshal.Deserialize<CreateSimulationCommand>);
+            // From server
+            RegisterCommand<CreateSimulationCommand>();
+            RegisterCommand<StartSimulationCommand>();
+            RegisterCommand<StopSimulationCommand>();
+            RegisterCommand<DeleteSimulationCommand>();
+
+            // To server
+            RegisterCommand<FinishMasterGameCommand>();
         }
+
+        private void RegisterCommand<T>() where T : ISerialization, IDeserialization, new()
+        {
+            PhotonPeer.RegisterType(typeof(T), _registeredCommandsCounter, PhotonMarshal.Serialize<T>, PhotonMarshal.Deserialize<T>);
+            _registeredCommandsCounter += 1;
+        }
+        #endregion
+
     }
 }

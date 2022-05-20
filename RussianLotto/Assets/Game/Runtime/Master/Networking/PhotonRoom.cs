@@ -11,17 +11,18 @@ using Player = RussianLotto.Networking.Player;
 
 namespace RussianLotto.Master
 {
-    public class PhotonRoom : IRoom, IMatchmakingCallbacks, IOnEventCallback
+    public class PhotonRoom : IMasterRoom, IMatchmakingCallbacks, IOnEventCallback
     {
-        private const int ClientCommandsCode = 0;
-        private const int ServerCommandsCode = 1;
+        private const int ClientCommandsCode = 100;
+        private const int ServerCommandsCode = 200;
 
         private const string GameTypeProperty = "gameType";
         private const string ShuffledProperty = "shuffled";
 
         private readonly LoadBalancingClient _loadBalancingClient;
 
-        private readonly CommandsQueue<ISessionCommand> _sessionInputQueue;
+        private readonly CommandsQueue<ISessionCommand> _localInputQueue;
+        private readonly CommandsQueue<IServerCommand> _serverInputQueue;
 
         private string _roomName = string.Empty;
         private bool _tryingRejoining;
@@ -34,7 +35,8 @@ namespace RussianLotto.Master
             _loadBalancingClient = loadBalancingClient;
             _loadBalancingClient.AddCallbackTarget(this);
 
-            _sessionInputQueue = new CommandsQueue<ISessionCommand>();
+            _localInputQueue = new ();
+            _serverInputQueue = new ();
         }
 
         public void Dispose()
@@ -50,12 +52,15 @@ namespace RussianLotto.Master
         public bool ShuffledMode { get; private set; }
 
         public IReadOnlyCollection<IPlayer> ConnectedPlayers => IsEntered
-            ? _loadBalancingClient.CurrentRoom.Players.Values.Select(player => new Player(player.NickName)).ToArray()
+            ? _loadBalancingClient.CurrentRoom.Players.Values.Select(player => new Player(player.UserId)).ToArray()
             : ArraySegment<IPlayer>.Empty;
 
         public bool CanSendCommands => _loadBalancingClient.IsConnectedAndReady;
 
-        public ICommandInput<ISessionCommand> SessionInput => _sessionInputQueue;
+        public ICommandInput<ISessionCommand> SessionInput => _localInputQueue;
+
+        public ICommandInput<IServerCommand> MasterInput => _serverInputQueue;
+
 
         public void SendToServer(IServerCommand command)
         {
@@ -87,6 +92,10 @@ namespace RussianLotto.Master
 
         public void CloseJoining()
         {
+            if (!IsEntered)
+                throw new InvalidOperationException();
+
+            _loadBalancingClient.CurrentRoom.IsOpen = false;
         }
 
         public void EnterRandom(GameType gameType, bool shuffled)
@@ -94,13 +103,13 @@ namespace RussianLotto.Master
             if (CanSendCommands == false)
                 throw new InvalidOperationException();
 
-            if (_loadBalancingClient.OpRejoinRoom(_roomName))
-            {
-                _tryingRejoining = true;
-                _rejoinGameType = gameType;
-                _rejoinShuffleMode = shuffled;
-                return;
-            }
+            // if (_loadBalancingClient.OpRejoinRoom(_roomName))
+            // {
+            //     _tryingRejoining = true;
+            //     _rejoinGameType = gameType;
+            //     _rejoinShuffleMode = shuffled;
+            //     return;
+            // }
 
             JoinOrCreateRoom(gameType, shuffled);
         }
@@ -120,16 +129,14 @@ namespace RussianLotto.Master
 
         public void OnEvent(EventData photonEvent)
         {
-            Debug.Log("Some event happened: " + photonEvent.Code + photonEvent.CustomData?.GetType().Name);
-
-            // Ignoring commands to MasterClient
-            if (photonEvent.Code == ServerCommandsCode)
-                return;
-
             switch (photonEvent.CustomData)
             {
                 case ISessionCommand command:
-                    _sessionInputQueue.PushCommand(command);
+                    _localInputQueue.PushCommand(command);
+                    break;
+
+                case IServerCommand command:
+                    _serverInputQueue.PushCommand(command);
                     break;
             }
         }
@@ -180,7 +187,11 @@ namespace RussianLotto.Master
         {
             Hashtable roomProperties = new() {{GameTypeProperty, gameType}, {ShuffledProperty, shuffled}};
 
-            OpJoinRandomRoomParams joinRandomRoomParams = new() {ExpectedCustomRoomProperties = roomProperties,};
+            OpJoinRandomRoomParams joinRandomRoomParams = new()
+            {
+                ExpectedCustomRoomProperties = roomProperties,
+                ExpectedMaxPlayers = (byte)MaxPlayersAmount
+            };
 
             EnterRoomParams enterRoomParams = new()
             {
@@ -188,8 +199,9 @@ namespace RussianLotto.Master
                 {
                     MaxPlayers = (byte)MaxPlayersAmount,
                     CustomRoomProperties = roomProperties,
-                    PlayerTtl = 60000,
-                    EmptyRoomTtl = 60000,
+                    CustomRoomPropertiesForLobby = new []{GameTypeProperty, ShuffledProperty}
+                    // PlayerTtl = 60000,
+                    // EmptyRoomTtl = 60000,
                 },
             };
 

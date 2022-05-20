@@ -3,15 +3,13 @@ using UnityEngine;
 
 namespace RussianLotto.Input
 {
-    public class BoardInput : MonoBehaviour, ICommandInput<ISessionCommand>
+    public class BoardInput : CommandInputQueue<ISessionCommand>
     {
-        [SerializeField] private CardInput[] _cardInputs;
+        [SerializeField] private CardCellClickInput[] _cardInputs;
 
-        private CommandsQueue<ISessionCommand> _payload;
-
-        private void Awake()
+        protected override void Awake()
         {
-            _payload = new CommandsQueue<ISessionCommand>();
+            base.Awake();
 
             foreach (var card in _cardInputs)
                 card.Clicked += OnCellClicked;
@@ -25,13 +23,7 @@ namespace RussianLotto.Input
 
         private void OnCellClicked(int cardIndex, Vector2Int cellPosition)
         {
-            _payload.PushCommand(new MarkCellCommand(cardIndex, cellPosition));
-        }
-
-        public bool HasUnreadCommands => _payload.HasUnreadCommands;
-        public ISessionCommand ReadCommand()
-        {
-            return _payload.ReadCommand();
+            PushCommand(new MarkCellCommand(cardIndex, cellPosition));
         }
     }
 }

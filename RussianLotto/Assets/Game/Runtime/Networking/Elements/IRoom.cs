@@ -10,10 +10,6 @@ namespace RussianLotto.Networking
         ICommandInput<ISessionCommand> SessionInput { get; }
 
         public void SendToServer(IServerCommand command);
-        public void SendToClients(object command);
-
-        public void OpenToJoin();
-        public void CloseJoining();
 
         public void EnterRandom(GameType gameType, bool shuffled);
         public void Exit();

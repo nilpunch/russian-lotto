@@ -5,5 +5,7 @@ namespace RussianLotto.Client
     public interface IReadOnlySimulation : IVisualization<ISimulationView>
     {
         SimulationState State { get; }
+
+        bool IsPlayerWin { get; }
     }
 }

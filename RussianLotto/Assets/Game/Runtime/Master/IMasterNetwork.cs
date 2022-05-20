@@ -1,10 +1,9 @@
 ﻿namespace RussianLotto.Networking
 {
-    /// <summary>
-    /// Relay photon abstract factory. Only for Master
-    /// </summary>
     public interface IMasterNetwork : INetwork
     {
+        public IMasterRoom MasterRoom { get; }
+
         public bool IsMasterClient { get; }
 
         public void DispatchCommands();

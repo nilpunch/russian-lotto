@@ -5,18 +5,21 @@ namespace RussianLotto.Behavior
 {
     public class SwitchScreenToNode : BehaviorNode
     {
-        private readonly IPresentation _presentation;
+        private readonly IScreensPresentation _screensPresentation;
         private readonly Screen _screen;
 
-        public SwitchScreenToNode(IPresentation presentation, Screen screen)
+        public SwitchScreenToNode(IScreensPresentation screensPresentation, Screen screen)
         {
-            _presentation = presentation;
+            _screensPresentation = screensPresentation;
             _screen = screen;
         }
 
         public override BehaviorNodeStatus OnExecute(long time)
         {
-            _presentation.SwitchTo(_screen);
+            if (Started)
+                return Status;
+
+            _screensPresentation.SwitchTo(_screen);
             return BehaviorNodeStatus.Success;
         }
 

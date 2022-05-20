@@ -36,8 +36,15 @@ namespace RussianLotto.Client
             if (Status != CellStatus.Available)
                 throw new InvalidOperationException($"Cell is not available to {nameof(Miss)}.");
 
-            Debug.Log("Missed!! " + Number.ToString());
             Status = CellStatus.Missed;
+        }
+
+        public void Restore()
+        {
+            if (Status != CellStatus.Missed)
+                throw new InvalidOperationException($"Cell is not available to {nameof(Restore)}.");
+
+            Status = CellStatus.Marked;
         }
     }
 }

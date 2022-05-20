@@ -7,7 +7,7 @@ namespace RussianLotto.View
 {
     public class BoardView : MonoBehaviour, IBoardView
     {
-        [SerializeField] private MissingNumberView _missingNumberView;
+        [SerializeField] private NumberView _missingNumberView;
         [SerializeField] private CardView[] _cards;
 
         private void Awake()
@@ -19,7 +19,7 @@ namespace RussianLotto.View
         public void DrawCards(IReadOnlyCollection<IReadOnlyCard> cards)
         {
             foreach ((IReadOnlyCard card, CardView view) in cards.Zip(_cards, (card, view) => (card, view)))
-                view.DrawCells(card.Cells);
+                view.DrawCells(card.ReadOnlyCells);
         }
 
         public void DrawLastMissingNumber(int lastMissingNumber)

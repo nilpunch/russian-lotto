@@ -2,9 +2,6 @@
 
 namespace RussianLotto.Networking
 {
-    /// <summary>
-    /// Network abstract factory.
-    /// </summary>
     public interface INetwork : IDisposable
     {
         public IRoom Room { get; }

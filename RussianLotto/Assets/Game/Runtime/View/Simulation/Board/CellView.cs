@@ -10,8 +10,11 @@ namespace RussianLotto.View
         [SerializeField] private Image _missImage;
         [SerializeField] private Image _markImage;
         [SerializeField] private TextMeshProUGUI _numberText;
+        [SerializeField] private TextMeshProUGUI _markNumberText;
         [field: SerializeField] public Vector2Int CellPosition { get; set; } = Vector2Int.zero;
         [field: SerializeField] public RectTransform RectTransform { get; private set; } = null;
+
+        private int _lastNumber;
 
         private void Awake()
         {
@@ -34,8 +37,8 @@ namespace RussianLotto.View
                     break;
                 case CellStatus.Marked:
                     _missImage.enabled = false;
+                    _numberText.enabled = false;
                     _markImage.enabled = true;
-                    _numberText.enabled = true;
                     break;
                 case CellStatus.Missed:
                     _missImage.enabled = true;
@@ -45,11 +48,18 @@ namespace RussianLotto.View
                 default:
                     throw new ArgumentOutOfRangeException(nameof(cellStatus), cellStatus, null);
             }
+
+            _markNumberText.enabled = _markImage.enabled;
         }
 
         public void SetNumber(int number)
         {
+            if (_lastNumber == number)
+                return;
+
+            _lastNumber = number;
             _numberText.text = number.ToString();
+            _markNumberText.text = _numberText.text;
         }
     }
 }

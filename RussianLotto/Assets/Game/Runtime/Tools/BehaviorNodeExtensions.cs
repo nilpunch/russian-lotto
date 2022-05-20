@@ -9,7 +9,12 @@ namespace RussianLotto.Tools
             return new InverterNode(behaviorNode);
         }
 
-        public static IBehaviorNode Repeat(this IBehaviorNode behaviorNode, BehaviorNodeStatus? behaviorNodeStatus = null)
+        public static IBehaviorNode Repeat(this IBehaviorNode behaviorNode)
+        {
+            return new RepeatNode(behaviorNode);
+        }
+
+        public static IBehaviorNode RepeatUntil(this IBehaviorNode behaviorNode, BehaviorNodeStatus? behaviorNodeStatus)
         {
             return new RepeatNode(behaviorNode, behaviorNodeStatus);
         }

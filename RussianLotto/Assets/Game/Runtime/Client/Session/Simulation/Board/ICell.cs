@@ -4,5 +4,6 @@
     {
         void Miss();
         void Mark();
+        void Restore();
     }
 }

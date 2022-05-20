@@ -12,11 +12,12 @@ namespace RussianLotto.View
             for (int i = 0; i < amount; ++i)
             {
                 int numberIndex = i + from;
+                int viewIndex = amount - i - 1;
 
                 if (numberIndex >= 0 && numberIndex < numbers.Count)
-                    _numbers[i].Show(numbers[numberIndex]);
+                    _numbers[viewIndex].Show(numbers[numberIndex]);
                 else
-                    _numbers[i].Hide();
+                    _numbers[viewIndex].Hide();
             }
         }
     }

@@ -7,7 +7,7 @@ namespace RussianLotto.View
         [SerializeField] private SimulationView _simulationView;
         [SerializeField] private ScreensPresentation _screensPresentation;
 
-        public IPresentation Presentation => _screensPresentation;
+        public IScreensPresentation ScreensPresentation => _screensPresentation;
         public ISimulationView SimulationView => _simulationView;
     }
 }

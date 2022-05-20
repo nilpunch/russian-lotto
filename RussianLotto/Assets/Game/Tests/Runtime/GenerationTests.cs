@@ -31,7 +31,7 @@ namespace RussianLotto.Tests
                 }
             }
 
-            foreach (var cell in card.Cells)
+            foreach (var cell in card.ReadOnlyCells)
                 numbers[cell.Position.y, cell.Position.x] = cell.Number.ToString();
 
             var tabbedData = StringHelp.EvenColumns(3, StringHelp.ToJaggedArray(numbers));

@@ -10,6 +10,11 @@ namespace RussianLotto.Command
 
         public T ReadCommand() => _commandsQueue.Dequeue();
 
+        public void Clear()
+        {
+            _commandsQueue.Clear();
+        }
+
         public void PushCommand(T command)
         {
             _commandsQueue.Enqueue(command);

@@ -2,7 +2,7 @@
 
 namespace RussianLotto.Master
 {
-    public interface IServerCommand : ICommand<MasterClient>
+    public interface IServerCommand : ICommand<IMasterSimulation>
     {
     }
 }

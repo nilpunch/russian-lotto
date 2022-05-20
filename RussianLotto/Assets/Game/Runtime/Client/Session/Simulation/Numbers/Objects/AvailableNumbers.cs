@@ -23,9 +23,10 @@ namespace RussianLotto.Client
         }
 
         public IEnumerable<int> Available => _numbers.Collection.Where(
-            (number, index) => index <= CurrentOpenIndex && index > CurrentOpenIndex - _maxAvailableAtOnce);
+            (number, index) => index > CurrentOpenIndex - _maxAvailableAtOnce && index <= CurrentOpenIndex);
+
         public IEnumerable<int> Missed => _numbers.Collection.Where(
-            (number, index) => index < CurrentOpenIndex - _maxAvailableAtOnce);
+            (number, index) => index <= CurrentOpenIndex - _maxAvailableAtOnce);
 
         public bool IsEnded => CurrentOpenIndex - _maxAvailableAtOnce >= _numbers.Collection.Count;
 
@@ -57,7 +58,7 @@ namespace RussianLotto.Client
 
         public void Visualize(IAvailableNumbersView view)
         {
-            view.DrawAvailableNumbers(_numbers.Collection, CurrentOpenIndex - _maxAvailableAtOnce, _maxAvailableAtOnce);
+            view.DrawAvailableNumbers(_numbers.Collection, CurrentOpenIndex - _maxAvailableAtOnce + 1, _maxAvailableAtOnce);
         }
     }
 }

@@ -9,11 +9,18 @@ namespace RussianLotto.View
         [SerializeField] private Image _backgroundImage = null;
         [SerializeField] private TextMeshProUGUI _numberText = null;
 
-        public virtual void Show(int kegValue)
+        private int _lastNumber;
+
+        public virtual void Show(int number)
         {
             _backgroundImage.enabled = true;
             _numberText.enabled = true;
-            _numberText.text = kegValue.ToString();
+
+            if (_lastNumber == number)
+                return;
+
+            _lastNumber = number;
+            _numberText.text = number.ToString();
         }
 
         public virtual void Hide()

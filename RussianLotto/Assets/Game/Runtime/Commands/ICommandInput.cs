@@ -5,5 +5,7 @@
         public bool HasUnreadCommands { get; }
 
         public T ReadCommand();
+
+        public void Clear();
     }
 }

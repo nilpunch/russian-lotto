@@ -18,6 +18,9 @@ namespace RussianLotto.Behavior
 
         public override BehaviorNodeStatus OnExecute(long time)
         {
+            if (Started)
+                return Status;
+
             while (_input.HasUnreadCommands)
             {
                 _input.ReadCommand().Execute(_target);

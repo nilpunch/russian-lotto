@@ -14,6 +14,9 @@ namespace RussianLotto.Behavior
 
         public override BehaviorNodeStatus OnExecute(long time)
         {
+            if (Started)
+                return Status;
+
             _inputElement.Active = false;
             return BehaviorNodeStatus.Success;
         }

@@ -2,6 +2,7 @@
 using RussianLotto.Behavior;
 using RussianLotto.Client;
 using RussianLotto.Networking;
+using RussianLotto.Tools;
 using RussianLotto.View;
 
 namespace RussianLotto.Master
@@ -10,21 +11,72 @@ namespace RussianLotto.Master
     {
         private readonly BehaviorNode _behaviorTree;
 
-        public MasterClient(IMasterNetwork masterNetwork)
+        public MasterClient(IMasterNetwork masterNetwork, IReadOnlySession readOnlySession)
         {
+            MasterSimulation masterSimulation = new MasterSimulation(masterNetwork, readOnlySession);
+
             _behaviorTree = new SequenceNode(new IBehaviorNode[]
             {
                 new SequenceNode(new IBehaviorNode[]
                 {
                     new IsConnectedToServer(masterNetwork),
-                    new IsEnteredRoom(masterNetwork.Room),
+                    new IsEnteredRoomNode(masterNetwork.Room),
                     new IsBecameMasterClientNode(masterNetwork),
-                }, true, "MasterClientDetection"),
+                }, false, "MasterClientDetection"),
 
-                new WaitNode(3000),
-                new StartClientsSimulationNode(masterNetwork),
-                new ConstantNode(BehaviorNodeStatus.Running)
-            }, true, "MasterClient");
+                new RestoreMasterDataNode(masterSimulation),
+
+                new ParallelSequenceNode(new IBehaviorNode[]
+                {
+                    new SequenceNode(new IBehaviorNode[]
+                    {
+                        new IsConnectedToServer(masterNetwork),
+                        new IsEnteredRoomNode(masterNetwork.Room),
+                        new IsBecameMasterClientNode(masterNetwork),
+                    }, true, "DisconnectDetection").RepeatUntil(BehaviorNodeStatus.Failure),
+
+                    new SequenceNode(new IBehaviorNode[]
+                    {
+                        new SelectorNode(new IBehaviorNode[]
+                        {
+                            new IsMasterGamePreparationNode(masterSimulation),
+                            new IsMasterGameStartedNode(masterSimulation),
+                            new IsMasterGameFinishedNode(masterSimulation),
+                            new RoomHasPlayersAmountNode(masterNetwork.Room, 2),
+                        }, false, "RoomAwaiting").RepeatUntil(BehaviorNodeStatus.Success),
+
+                        new SelectorNode(new IBehaviorNode[]
+                        {
+                            new IsMasterGamePreparationNode(masterSimulation),
+                            new IsMasterGameStartedNode(masterSimulation),
+                            new IsMasterGameFinishedNode(masterSimulation),
+
+                            new WaitNode(3000).Invert(),
+                            new PrepairMasterGameNode(masterSimulation),
+                        }),
+
+                        new SelectorNode(new IBehaviorNode[]
+                        {
+                            new IsMasterGameStartedNode(masterSimulation),
+                            new IsMasterGameFinishedNode(masterSimulation),
+                            new WaitNode(3000).Invert(),
+                            new StartMasterGameNode(masterSimulation),
+                        }),
+
+                        new ParallelSelectorNode(new IBehaviorNode[]
+                        {
+                            new IsMasterGameFinishedNode(masterSimulation).RepeatUntil(BehaviorNodeStatus.Success),
+
+                            new ExecuteCommandsNode<MasterSimulation>(masterNetwork.MasterRoom.MasterInput, masterSimulation,
+                                "Network").Repeat(),
+                        }),
+
+                        new WaitNode(5000),
+
+                        new ResetMasterGameNode(masterSimulation),
+                    }, false, "MasterClientLoop").Repeat(),
+                }),
+            }, false, "MasterClient");
         }
 
         public void ExecuteFrame(long time)

@@ -14,11 +14,18 @@ namespace RussianLotto.Client
             _cells = cells;
         }
 
-        public IReadOnlyCollection<IReadOnlyCell> Cells => _cells;
+        public IReadOnlyCollection<IReadOnlyCell> ReadOnlyCells => _cells;
+
+        public IReadOnlyCollection<ICell> Cells => _cells;
 
         public bool IsAvailable(Vector2Int cellPosition)
         {
             return _cells.Any(cell => cell.Position == cellPosition && cell.IsAvailable);
+        }
+
+        public int AvailableCellsWithNumber(int number)
+        {
+            return _cells.Count(cell => cell.Number == number && cell.IsAvailable);
         }
 
         public bool IsComplete()
@@ -53,6 +60,23 @@ namespace RussianLotto.Client
             }
 
             return missCell;
+        }
+
+        public void MarkAvailableCells(int number, int amount)
+        {
+            if (amount > AvailableCellsWithNumber(number))
+                throw new InvalidOperationException();
+
+            int markCount = 0;
+
+            foreach (var cell in _cells.Where(cell => cell.Number == number && cell.IsAvailable))
+            {
+                cell.Mark();
+
+                markCount += 1;
+                if (markCount == amount)
+                    break;
+            }
         }
     }
 }

@@ -7,9 +7,9 @@ namespace RussianLotto.View
     {
         [SerializeField] private Image _redCrossImage = null;
 
-        public override void Show(int kegValue)
+        public override void Show(int number)
         {
-            base.Show(kegValue);
+            base.Show(number);
             _redCrossImage.enabled = true;
         }
 

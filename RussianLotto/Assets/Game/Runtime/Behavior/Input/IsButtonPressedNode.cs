@@ -17,7 +17,6 @@ namespace RussianLotto.Behavior
             if (_button.Pressed)
             {
                 _button.Release();
-                _button.Active = false;
                 return BehaviorNodeStatus.Success;
             }
 

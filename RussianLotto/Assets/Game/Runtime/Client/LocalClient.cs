@@ -10,12 +10,12 @@ namespace RussianLotto.Client
     public class LocalClient : IClient, IVisualization<ITreeGraph<IReadOnlyBehaviorNode>>
     {
         private readonly BehaviorNode _behaviorTree;
+        private readonly Session _session;
 
         public LocalClient(INetwork network, IViewport viewport, IInput input)
         {
-            var session = new Session();
+            _session = new Session();
 
-            // In progress
             _behaviorTree = new SequenceNode(new IBehaviorNode[]
             {
                 new SequenceNode(new IBehaviorNode[]
@@ -32,14 +32,6 @@ namespace RussianLotto.Client
                     {
                         new IsConnectedToServer(network),
 
-                        new SequenceNode(new IBehaviorNode[]
-                        {
-                            new DeactivateInputNode(input.MainMenu.LeaveRoom),
-                            new DeactivateInputNode(input.MainMenu.ConnectToRandomRoom),
-                            new DeactivateInputNode(input.MainMenu.ShuffledSwitch),
-                            new DeactivateInputNode(input.MainMenu.GameTypeSwitch),
-                        }, false, "ResetAllInputs").Invert(),
-
                         new TimeoutNode
                         (
                             new ConnectToServer(network),
@@ -47,16 +39,16 @@ namespace RussianLotto.Client
                         ),
                     }, true, "ConnectToServer"),
 
-                    new SwitchScreenToNode(viewport.Presentation, Screen.MainMenu),
+                    new SwitchScreenToNode(viewport.ScreensPresentation, Screen.MainMenu),
 
                     new SelectorNode(new IBehaviorNode[]
                     {
-                        new IsEnteredRoom(network.Room),
+                        new IsEnteredRoomNode(network.Room),
 
                         new SelectorNode(new IBehaviorNode[]
                         {
-                            new IsSessionHasSimulationNode(session).Invert(),
-                            new DeleteSimulationNode(session),
+                            new IsSessionHasSimulationNode(_session).Invert(),
+                            new DeleteSimulationNode(_session),
                         }).Invert(),
 
                         new ActivateInputNode(input.MainMenu.ShuffledSwitch).Invert(),
@@ -83,13 +75,11 @@ namespace RussianLotto.Client
                         new DeactivateInputNode(input.MainMenu.GameTypeSwitch),
                     }, false, "ResetAllInputs"),
 
-                    new SwitchScreenToNode(viewport.Presentation, Screen.Room),
-
                     new ParallelSelectorNode(new IBehaviorNode[]
                     {
                         new SequenceNode(new IBehaviorNode[]
                         {
-                            new ExecuteCommandsNode<ISession>(network.Room.SessionInput, session, "Network"),
+                            new ExecuteCommandsNode<ISession>(network.Room.SessionInput, _session, "Network"),
                         }, false, "ExecuteCommands").Repeat(),
 
                         new SequenceNode(new IBehaviorNode[]
@@ -97,38 +87,52 @@ namespace RussianLotto.Client
                             new ActivateInputNode(input.MainMenu.LeaveRoom),
                             new IsButtonPressedNode(input.MainMenu.LeaveRoom),
                             new ExitRoomNode(network.Room),
-                        }, false, "ExitFromRoom").Repeat(BehaviorNodeStatus.Success),
+                        }, false, "ExitFromRoom").RepeatUntil(BehaviorNodeStatus.Success),
 
                         new SequenceNode(new IBehaviorNode[]
                         {
-                            new IsSessionHasSimulationNode(session),
-
-                            new SwitchScreenToNode(viewport.Presentation, Screen.Preparation),
-                            new WaitNode(5000),
-
-                            new SwitchScreenToNode(viewport.Presentation, Screen.Game),
-                            new StartSimulationNode(session),
+                            new SelectorNode(new IBehaviorNode[]
+                            {
+                                new IsSessionHasSimulationNode(_session),
+                                new SwitchScreenToNode(viewport.ScreensPresentation, Screen.Room).Invert(),
+                                new ConstantNode(BehaviorNodeStatus.Failure)
+                            }, true),
 
                             new ParallelSelectorNode(new IBehaviorNode[]
                             {
-                                new IsSimulationFinishedNode(session).Repeat(BehaviorNodeStatus.Success),
-                                new ExecuteCommandsNode<ISession>(input.Session.Commands, session, "Player").Repeat(),
-                                new ExecuteSimulationFrameNode(session).Repeat(),
+                                new IsSimulationFinishedNode(_session).RepeatUntil(BehaviorNodeStatus.Success),
+
+                                new ExecuteCommandsNode<ISession>(input.Session.Commands, _session, "Player").Repeat(),
+
+                                new SequenceNode(new IBehaviorNode[]
+                                {
+                                    new SwitchScreenToNode(viewport.ScreensPresentation, Screen.Preparation),
+
+                                    new IsSimulationPlayingNode(_session).RepeatUntil(BehaviorNodeStatus.Success),
+
+                                    new SwitchScreenToNode(viewport.ScreensPresentation, Screen.Game),
+
+                                    new ExecuteSimulationFrameNode(_session).Repeat(),
+                                }),
+                            }, "Simulation"),
+
+                            new SelectorNode(new IBehaviorNode[]
+                            {
+                                new IsPlayerWinNode(_session).Invert(),
+                                new NotifyServerPlayerWinNode(network.Room)
                             }),
 
-                            new SwitchScreenToNode(viewport.Presentation, Screen.Results),
+                            new SwitchScreenToNode(viewport.ScreensPresentation, Screen.Results),
 
-                            new WaitNode(5000),
-
-                            new ExitRoomNode(network.Room),
-                        }, false, "SessionLoop").Repeat(BehaviorNodeStatus.Success),
+                            new ConstantNode(BehaviorNodeStatus.Running),
+                        }, true, "SessionLoop").Repeat(),
 
                         new SelectorNode(new IBehaviorNode[]
                         {
                             new SequenceNode(new IBehaviorNode[]
                             {
-                                new IsSessionHasSimulationNode(session),
-                                new RenderSimulationNode(viewport.SimulationView, session)
+                                new IsSessionHasSimulationNode(_session),
+                                new RenderSimulationNode(viewport.SimulationView, _session)
                             }),
 
                             new ConstantNode(BehaviorNodeStatus.Success)
@@ -137,6 +141,11 @@ namespace RussianLotto.Client
                 }, true, "ApplicationLoop"),
             }, false, "ApplicationPreparation");
         }
+
+        /// <summary>
+        /// Access for master only to restoring its state on master client switch.
+        /// </summary>
+        public IReadOnlySession Session => _session;
 
         public void ExecuteFrame(long time)
         {
