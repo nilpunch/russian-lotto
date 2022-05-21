@@ -127,16 +127,20 @@ namespace RussianLotto.Client
                             new ConstantNode(BehaviorNodeStatus.Running),
                         }, true, "SessionLoop").Repeat(),
 
-                        new SelectorNode(new IBehaviorNode[]
+                        new ParallelSelectorNode(new IBehaviorNode[]
                         {
                             new SequenceNode(new IBehaviorNode[]
                             {
                                 new IsSessionHasSimulationNode(_session),
                                 new RenderSimulationNode(viewport.SimulationView, _session)
-                            }),
+                            }, false, "SimulationRendering").Repeat(),
 
-                            new ConstantNode(BehaviorNodeStatus.Success)
-                        }, false, "Rendering").Repeat(),
+                            new SequenceNode(new IBehaviorNode[]
+                            {
+                                new RenderPlayersNode(viewport.PlayersView, network.Room)
+                            }, false, "PlayersRendering").Repeat(),
+
+                        }, "Rendering"),
                     }, "RoomLoop"),
                 }, true, "ApplicationLoop"),
             }, false, "ApplicationPreparation");

@@ -3,20 +3,18 @@ using RussianLotto.Networking;
 
 namespace RussianLotto.Behavior
 {
-    public class RoomHasPlayersAmountNode : BehaviorNode
+    public class RoomHasMinPlayersAmountToStartNode : BehaviorNode
     {
         private readonly IRoom _room;
-        private readonly int _playersAmount;
 
-        public RoomHasPlayersAmountNode(IRoom room, int playersAmount)
+        public RoomHasMinPlayersAmountToStartNode(IRoom room)
         {
             _room = room;
-            _playersAmount = playersAmount;
         }
 
         public override BehaviorNodeStatus OnExecute(long time)
         {
-            return _room.ConnectedPlayers.Count >= _playersAmount
+            return _room.ConnectedPlayers.Count >= _room.MinPlayersAmountToStart
                 ? BehaviorNodeStatus.Success
                 : BehaviorNodeStatus.Failure;
         }

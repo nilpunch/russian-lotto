@@ -42,7 +42,7 @@ namespace RussianLotto.Master
                             new IsMasterGamePreparationNode(masterSimulation),
                             new IsMasterGameStartedNode(masterSimulation),
                             new IsMasterGameFinishedNode(masterSimulation),
-                            new RoomHasPlayersAmountNode(masterNetwork.Room, 2),
+                            new RoomHasMinPlayersAmountToStartNode(masterNetwork.Room),
                         }, false, "RoomAwaiting").RepeatUntil(BehaviorNodeStatus.Success),
 
                         new SelectorNode(new IBehaviorNode[]

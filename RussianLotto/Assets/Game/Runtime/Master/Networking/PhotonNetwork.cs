@@ -16,7 +16,7 @@ namespace RussianLotto.Networking
             _appSettings = appSettings;
             _loadBalancingClient.AddCallbackTarget(this);
 
-            Room = MasterRoom = new PhotonRoom(6, loadBalancingClient);
+            Room = MasterRoom = new PhotonRoom(6, 2, loadBalancingClient);
         }
 
         public IRoom Room { get; }

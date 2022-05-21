@@ -6,6 +6,7 @@ using Photon.Realtime;
 using RussianLotto.Client;
 using RussianLotto.Command;
 using RussianLotto.Networking;
+using RussianLotto.View;
 using UnityEngine;
 using Player = RussianLotto.Networking.Player;
 
@@ -24,14 +25,16 @@ namespace RussianLotto.Master
         private readonly CommandsQueue<ISessionCommand> _localInputQueue;
         private readonly CommandsQueue<IServerCommand> _serverInputQueue;
 
-        private string _roomName = string.Empty;
+        // private string _roomName = string.Empty;
         private bool _tryingRejoining;
         private bool _rejoinShuffleMode;
         private GameType _rejoinGameType;
 
-        public PhotonRoom(int maxPlayersAmount, LoadBalancingClient loadBalancingClient)
+        public PhotonRoom(int maxPlayersAmount, int minPlayersAmountToStart, LoadBalancingClient loadBalancingClient)
         {
             MaxPlayersAmount = maxPlayersAmount;
+            MinPlayersAmountToStart = minPlayersAmountToStart;
+
             _loadBalancingClient = loadBalancingClient;
             _loadBalancingClient.AddCallbackTarget(this);
 
@@ -48,6 +51,7 @@ namespace RussianLotto.Master
         public bool IsOpenToJoin => _loadBalancingClient.CurrentRoom.IsOpen;
 
         public int MaxPlayersAmount { get; }
+        public int MinPlayersAmountToStart { get; }
         public GameType GameType { get; private set; }
         public bool ShuffledMode { get; private set; }
 
@@ -125,6 +129,12 @@ namespace RussianLotto.Master
             _loadBalancingClient.OpLeaveRoom(false);
         }
 
+        public void Visualize(IPlayersView view)
+        {
+            view.DrawPlayers(ConnectedPlayers, MaxPlayersAmount);
+            view.ShowGameReadyToStart(ConnectedPlayers.Count >= MinPlayersAmountToStart);
+        }
+
         #region PhotonCallbacks
 
         public void OnEvent(EventData photonEvent)
@@ -157,7 +167,7 @@ namespace RussianLotto.Master
         {
             Debug.Log("Room Joined! Name: " + _loadBalancingClient.CurrentRoom.Name);
 
-            _roomName = _loadBalancingClient.CurrentRoom.Name;
+            // _roomName = _loadBalancingClient.CurrentRoom.Name;
             GameType = (GameType)_loadBalancingClient.CurrentRoom.CustomProperties[GameTypeProperty];
             ShuffledMode = (bool)_loadBalancingClient.CurrentRoom.CustomProperties[ShuffledProperty];
         }

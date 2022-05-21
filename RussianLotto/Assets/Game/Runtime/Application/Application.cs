@@ -25,11 +25,12 @@ namespace RussianLotto.Application
 
         private void Start()
         {
+            UnityEngine.Application.targetFrameRate = 200;
+
             SetupPhoton();
 
             _network = new PhotonNetwork(new LoadBalancingClient(), _photonSettings);
             _localClient = new LocalClient(_network, _viewport, _inputRoot);
-
             _masterClient = new MasterClient(_network, _localClient.Session);
         }
 

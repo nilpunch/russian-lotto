@@ -40,7 +40,7 @@ namespace RussianLotto.Client
             var boardFactory = new BoardFactory(3, cardFactory);
             var board = boardFactory.Create();
 
-            var availableNumbers = new AvailableNumbers(100, 5, numbers);
+            var availableNumbers = new AvailableNumbers(3000, 5, numbers);
             _localSimulation = new LocalSimulation(board, cardFactory, availableNumbers);
         }
 

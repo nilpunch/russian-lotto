@@ -1,7 +1,6 @@
 ﻿namespace RussianLotto.Networking
 {
-    public interface IPlayer
+    public interface IPlayer : IReadOnlyPlayer
     {
-        string Name { get; }
     }
 }
