@@ -1,4 +1,4 @@
-﻿using RussianLotto.Networking;
+﻿using RussianLotto.Save;
 
 namespace RussianLotto.Master
 {

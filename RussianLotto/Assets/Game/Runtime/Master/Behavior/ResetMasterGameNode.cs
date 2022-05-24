@@ -1,5 +1,4 @@
 ﻿using BananaParty.BehaviorTree;
-using RussianLotto.Networking;
 
 namespace RussianLotto.Master
 {

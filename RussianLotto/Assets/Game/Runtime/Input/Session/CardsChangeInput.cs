@@ -1,6 +1,4 @@
-﻿using System;
-using System.Linq;
-using RussianLotto.Command;
+﻿using RussianLotto.Command;
 using UnityEngine;
 
 namespace RussianLotto.Input

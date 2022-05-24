@@ -1,4 +1,5 @@
 ﻿using System;
+using RussianLotto.Client;
 using RussianLotto.Command;
 using UnityEngine;
 
@@ -13,6 +14,7 @@ namespace RussianLotto.Input
         public bool HasUnreadCommands => _highlightAvailableButton.Pressed ||
                                          _markMissesButton.Pressed ||
                                          _automaticMarkButton.Pressed;
+
         public ISessionCommand ReadCommand()
         {
             if (_highlightAvailableButton.Pressed)

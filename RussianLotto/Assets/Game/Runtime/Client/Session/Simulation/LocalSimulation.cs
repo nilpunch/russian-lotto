@@ -1,4 +1,5 @@
 ﻿using System;
+using RussianLotto.Save;
 using RussianLotto.View;
 using UnityEngine;
 
@@ -11,15 +12,20 @@ namespace RussianLotto.Client
         private readonly IFactory<ICard> _cardsFactory;
 
         private readonly IBonuses _bonuses;
+        private readonly IWallet _wallet;
+        private readonly IHighlightedCells _highlightedCells;
+        private readonly IAutomaticMark _availbaleToMark;
 
-        public LocalSimulation(IBoard board, IFactory<ICard> cardsFactory, IAvailableNumbers availableNumbers)
+        public LocalSimulation(IBonuses bonuses, IBoard board, IFactory<ICard> cardsFactory, IAvailableNumbers availableNumbers)
         {
             _board = board;
             _cardsFactory = cardsFactory;
             _availableNumbers = availableNumbers;
             State = SimulationState.Idle;
 
-            _bonuses = new Bonuses(board, availableNumbers);
+            _highlightedCells = new HighlightedCells();
+            _availbaleToMark = new AutomaticMark(board, availableNumbers);
+            _bonuses = bonuses;
         }
 
         public SimulationState State { get; private set; }
@@ -31,7 +37,9 @@ namespace RussianLotto.Client
             if (State != SimulationState.Game)
                 return;
 
-            _bonuses.Use();
+            _bonuses.MarkMisses.Use(_board);
+            _bonuses.Highlight.Use(_highlightedCells);
+            _bonuses.AutomaticMark.Use(_availbaleToMark);
 
             _availableNumbers.ExecuteFrame(time);
             _board.UpdateAllMissingNumbers(_availableNumbers);
@@ -64,25 +72,10 @@ namespace RussianLotto.Client
             }
         }
 
-        public void TopUpAutomaticMarkBonus()
-        {
-            _bonuses.AutomaticMark.TopUp(3);
-        }
-
-        public void TopUpHighlithAvailableBonus()
-        {
-            _bonuses.HighlightAvailable.TopUp(6);
-        }
-
-        public void TopUpMarkMissesBonus()
-        {
-            _bonuses.MarkMisses.TopUp(1);
-        }
-
-        public void ChangeCardToNewOne(int cardIndex)
+        public void TryChangeCardToNewOne(int cardIndex)
         {
             if (State != SimulationState.Idle)
-                throw new InvalidOperationException();
+                return;
 
             ICard newCard = _cardsFactory.Create();
 

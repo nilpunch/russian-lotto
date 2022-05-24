@@ -1,6 +1,8 @@
-﻿namespace RussianLotto.Client
+﻿using RussianLotto.Save;
+
+namespace RussianLotto.Client
 {
-    public interface IBonus<in T>
+    public interface IBonus<in T> : ISerialization, IDeserialization
     {
         public int UsesLeft { get; }
 

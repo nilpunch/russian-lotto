@@ -1,11 +1,11 @@
-﻿namespace RussianLotto.Client
+﻿using RussianLotto.Save;
+
+namespace RussianLotto.Client
 {
-    public interface IBonuses
+    public interface IBonuses : ISerialization, IDeserialization
     {
         IBonus<IBoard> MarkMisses { get; }
-        IBonus<IHighlightedCells> HighlightAvailable { get; }
-        IBonus<IAvailableToMarkCells> AutomaticMark { get; }
-
-        void Use();
+        IBonus<IHighlightedCells> Highlight { get; }
+        IBonus<IAutomaticMark> AutomaticMark { get; }
     }
 }

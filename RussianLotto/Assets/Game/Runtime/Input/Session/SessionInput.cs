@@ -8,6 +8,7 @@ namespace RussianLotto.Input
         [SerializeField] private BoardInput _boardInput;
         [SerializeField] private CardsChangeInput _cardsChangeInput;
         [SerializeField] private BonusInput _bonusInput;
+        [SerializeField] private ButtonInput _revengeButton;
 
         private ICommandInput<ISessionCommand> _combinedInput;
 
@@ -20,5 +21,6 @@ namespace RussianLotto.Input
         }
 
         public ICommandInput<ISessionCommand> Commands => _combinedInput;
+        public IButtonElement Revenge => _revengeButton;
     }
 }

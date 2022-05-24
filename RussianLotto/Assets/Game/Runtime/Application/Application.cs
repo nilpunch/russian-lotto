@@ -5,6 +5,7 @@ using RussianLotto.Command;
 using RussianLotto.Input;
 using RussianLotto.Master;
 using RussianLotto.Networking;
+using RussianLotto.Save;
 using RussianLotto.View;
 using UnityEngine;
 
@@ -17,6 +18,7 @@ namespace RussianLotto.Application
 
         [Space, SerializeField] private ViewportRoot _viewport;
         [SerializeField] private InputRoot _inputRoot;
+        [SerializeField] private OfflineMoneyEarn _offlineMoneyEarn;
         [SerializeField] private AppSettings _photonSettings;
 
         private LocalClient _localClient;
@@ -30,7 +32,7 @@ namespace RussianLotto.Application
             SetupPhoton();
 
             _network = new PhotonNetwork(new LoadBalancingClient(), _photonSettings);
-            _localClient = new LocalClient(_network, _viewport, _inputRoot);
+            _localClient = new LocalClient(_offlineMoneyEarn, _network, _viewport, _inputRoot);
             _masterClient = new MasterClient(_network, _localClient.Session);
         }
 
@@ -58,12 +60,13 @@ namespace RussianLotto.Application
 
         private void OnDestroy()
         {
-            _network.Dispose();
+            OnApplicationQuit();
         }
 
         private void OnApplicationQuit()
         {
             _network.Dispose();
+            _localClient.Save();
         }
 
         #region PhotonTrash

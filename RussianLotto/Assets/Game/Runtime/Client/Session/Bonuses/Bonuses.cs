@@ -1,32 +1,37 @@
-﻿namespace RussianLotto.Client
+﻿using RussianLotto.Save;
+
+namespace RussianLotto.Client
 {
     public class Bonuses : IBonuses
     {
+        private readonly IBonusesSave _bonusesSave;
         private readonly IBoard _board;
         private readonly HighlightedCells _highlightedCells;
-        private readonly AvailableToMarkCells _availbaleToMark;
+        private readonly AutomaticMark _availbaleToMark;
 
-        public Bonuses(IBoard board, IReadOnlyAvailableNumbers availableNumbers)
+        public Bonuses()
         {
-            _board = board;
-
-            _highlightedCells = new HighlightedCells();
-            _availbaleToMark = new AvailableToMarkCells(board, availableNumbers);
-
-            MarkMisses = new MarkMissesBonus(0);
-            HighlightAvailable = new HighlightAvailableBonus(0);
-            AutomaticMark = new AutomaticMarkBonus(0);
+            MarkMisses = new MarkMissesBonus();
+            Highlight = new HighlightBonus();
+            AutomaticMark = new AutomaticMarkBonus();
         }
 
         public IBonus<IBoard> MarkMisses { get; }
-        public IBonus<IHighlightedCells> HighlightAvailable { get; }
-        public IBonus<IAvailableToMarkCells> AutomaticMark { get; }
+        public IBonus<IHighlightedCells> Highlight { get; }
+        public IBonus<IAutomaticMark> AutomaticMark { get; }
 
-        public void Use()
+        public void Serialize(IWriteHandle writeHandle)
         {
-            MarkMisses.Use(_board);
-            HighlightAvailable.Use(_highlightedCells);
-            AutomaticMark.Use(_availbaleToMark);
+            MarkMisses.Serialize(writeHandle);
+            Highlight.Serialize(writeHandle);
+            AutomaticMark.Serialize(writeHandle);
+        }
+
+        public void Deserialize(IReadHandle readHandle)
+        {
+            MarkMisses.Deserialize(readHandle);
+            Highlight.Deserialize(readHandle);
+            AutomaticMark.Deserialize(readHandle);
         }
     }
 }

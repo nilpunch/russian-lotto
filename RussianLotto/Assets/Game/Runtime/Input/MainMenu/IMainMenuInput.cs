@@ -6,6 +6,7 @@ namespace RussianLotto.Input
     {
         ISwitchElement<bool> ShuffledSwitch { get; }
         ISwitchElement<GameType> GameTypeSwitch { get; }
+        ISwitchElement<int> BetSwitch { get; }
 
         public IButtonElement ConnectToRandomRoom { get; }
         public IButtonElement LeaveRoom { get; }

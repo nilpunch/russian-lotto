@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace RussianLotto.View
+﻿namespace RussianLotto.View
 {
     public class GameObjectVisibility : VisibilityElement
     {

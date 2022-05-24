@@ -13,7 +13,7 @@ namespace RussianLotto.Command
 
         public void Execute(ISession target)
         {
-            target.Simulation.ChangeCardToNewOne(_card);
+            target.TryChangeCardToNewOne(_card);
         }
     }
 }

@@ -17,13 +17,13 @@ namespace RussianLotto.Command
             switch (_bonusType)
             {
                 case BonusType.AutomaticMark:
-                    target.Simulation.TopUpAutomaticMarkBonus();
+                    target.TopUpAutomaticMarkBonus();
                     break;
                 case BonusType.MarkMisses:
-                    target.Simulation.TopUpMarkMissesBonus();
+                    target.TopUpMarkMissesBonus();
                     break;
                 case BonusType.HighlightAvailable:
-                    target.Simulation.TopUpHighlithAvailableBonus();
+                    target.TopUpHighlithAvailableBonus();
                     break;
                 default:
                     throw new ArgumentOutOfRangeException();

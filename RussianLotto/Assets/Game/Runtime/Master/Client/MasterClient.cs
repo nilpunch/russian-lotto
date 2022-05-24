@@ -33,7 +33,7 @@ namespace RussianLotto.Master
                         new IsConnectedToServer(masterNetwork),
                         new IsEnteredRoomNode(masterNetwork.Room),
                         new IsBecameMasterClientNode(masterNetwork),
-                    }, true, "DisconnectDetection").RepeatUntil(BehaviorNodeStatus.Failure),
+                    }, false, "DisconnectDetection").RepeatUntil(BehaviorNodeStatus.Failure),
 
                     new SequenceNode(new IBehaviorNode[]
                     {
@@ -51,7 +51,7 @@ namespace RussianLotto.Master
                             new IsMasterGameStartedNode(masterSimulation),
                             new IsMasterGameFinishedNode(masterSimulation),
 
-                            new WaitNode(3000).Invert(),
+                            new WaitNode(5000).Invert(),
                             new PrepairMasterGameNode(masterSimulation),
                         }),
 
@@ -59,9 +59,11 @@ namespace RussianLotto.Master
                         {
                             new IsMasterGameStartedNode(masterSimulation),
                             new IsMasterGameFinishedNode(masterSimulation),
-                            new WaitNode(3000).Invert(),
+                            new WaitNode(5000).Invert(),
                             new StartMasterGameNode(masterSimulation),
                         }),
+
+                        new ClearCommandsNode<MasterSimulation>(masterNetwork.MasterRoom.MasterInput),
 
                         new ParallelSelectorNode(new IBehaviorNode[]
                         {
@@ -71,7 +73,7 @@ namespace RussianLotto.Master
                                 "Network").Repeat(),
                         }),
 
-                        new WaitNode(5000),
+                        new WaitNode(10000),
 
                         new ResetMasterGameNode(masterSimulation),
                     }, false, "MasterClientLoop").Repeat(),

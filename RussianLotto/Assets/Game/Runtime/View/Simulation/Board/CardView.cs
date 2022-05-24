@@ -8,7 +8,6 @@ using System.Collections.Generic;
 using System.Linq;
 using RussianLotto.Client;
 using UnityEngine;
-using UnityEngine.UI;
 
 namespace RussianLotto.View
 {

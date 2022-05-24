@@ -1,5 +1,4 @@
-﻿using System.Collections.Generic;
-using RussianLotto.Client;
+﻿using RussianLotto.Client;
 
 namespace RussianLotto.Networking
 {

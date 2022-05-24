@@ -15,9 +15,7 @@ namespace RussianLotto.Behavior
         public override BehaviorNodeStatus OnExecute(long time)
         {
             if (!Started)
-            {
                 _room.Exit();
-            }
 
             return _room.IsEntered == false ? BehaviorNodeStatus.Success : BehaviorNodeStatus.Running;
         }

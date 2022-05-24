@@ -1,5 +1,5 @@
 ﻿using RussianLotto.Client;
-using RussianLotto.Networking;
+using RussianLotto.Save;
 
 namespace RussianLotto.Command
 {

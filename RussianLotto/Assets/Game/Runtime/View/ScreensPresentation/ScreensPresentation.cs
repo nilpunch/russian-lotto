@@ -1,13 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using UnityEngine;
+﻿using UnityEngine;
 
 namespace RussianLotto.View
 {
     public class ScreensPresentation : MonoBehaviour, IScreensPresentation
     {
-        [SerializeField] private ScreenRoot[] _screenRoots;
+        [SerializeField] private VisibilityRoot[] _screenRoots;
 
         private void Start()
         {
