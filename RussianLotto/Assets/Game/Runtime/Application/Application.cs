@@ -13,8 +13,10 @@ namespace RussianLotto.Application
 {
     public class Application : MonoBehaviour
     {
+#if UNITY_EDITOR
         [SerializeField] private BehaviorTreeView _localClientTree;
         [SerializeField] private BehaviorTreeView _masterClientTree;
+#endif
 
         [Space, SerializeField] private ViewportRoot _viewport;
         [SerializeField] private InputRoot _inputRoot;
@@ -27,7 +29,8 @@ namespace RussianLotto.Application
 
         private void Start()
         {
-            UnityEngine.Application.targetFrameRate = 200;
+            UnityEngine.Application.targetFrameRate = 1000;
+            UnityEngine.QualitySettings.vSyncCount = 0;
 
             SetupPhoton();
 
@@ -38,12 +41,20 @@ namespace RussianLotto.Application
 
         private void Update()
         {
+            if (UnityEngine.Input.GetKeyDown(KeyCode.Escape))
+            {
+                UnityEngine.Application.Quit();
+                return;
+            }
+
             _network.DispatchCommands();
 
-            long time = (long)(Time.time * 1000f);
+            long time = (long)(Time.realtimeSinceStartupAsDouble * 1000f);
 
             _masterClient.ExecuteFrame(time);
             _localClient.ExecuteFrame(time);
+
+            #if UNITY_EDITOR
 
             if (_localClientTree != null)
             {
@@ -56,6 +67,8 @@ namespace RussianLotto.Application
                 _masterClient.Visualize(_masterClientTree);
                 _masterClientTree.Project();
             }
+
+            #endif
         }
 
         private void OnDestroy()

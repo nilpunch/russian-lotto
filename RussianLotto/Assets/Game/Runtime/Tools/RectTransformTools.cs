@@ -6,7 +6,7 @@ namespace RussianLotto.View
     public static class RectTransformTools
     {
 #if UNITY_EDITOR
-        [MenuItem("CONTEXT/RectTransform/Pin Anchors Around")]
+        [MenuItem("CONTEXT/RectTransform/Proportional Pins/Pin Anchors Around")]
         public static void PinAnchorsAround(MenuCommand menuCommand)
         {
             RectTransform transform = (RectTransform)menuCommand.context;
@@ -35,7 +35,7 @@ namespace RussianLotto.View
             EditorUtility.SetDirty(transform);
         }
 
-        [MenuItem("CONTEXT/RectTransform/Pin to X")]
+        [MenuItem("CONTEXT/RectTransform/Proportional Pins/Pin to X")]
         public static void PinAnchorToX(MenuCommand menuCommand)
         {
             RectTransform transform = (RectTransform)menuCommand.context;
@@ -56,7 +56,7 @@ namespace RussianLotto.View
             EditorUtility.SetDirty(transform);
         }
 
-        [MenuItem("CONTEXT/RectTransform/Pin to Y")]
+        [MenuItem("CONTEXT/RectTransform/Proportional Pins/Pin to Y")]
         public static void PinAnchorToY(MenuCommand menuCommand)
         {
 

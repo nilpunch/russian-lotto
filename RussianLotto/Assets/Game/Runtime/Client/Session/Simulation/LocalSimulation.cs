@@ -1,5 +1,4 @@
 ﻿using System;
-using RussianLotto.Save;
 using RussianLotto.View;
 using UnityEngine;
 
@@ -23,7 +22,7 @@ namespace RussianLotto.Client
             _availableNumbers = availableNumbers;
             State = SimulationState.Idle;
 
-            _highlightedCells = new HighlightedCells();
+            _highlightedCells = new HighlightedCells(board, availableNumbers);
             _availbaleToMark = new AutomaticMark(board, availableNumbers);
             _bonuses = bonuses;
         }
@@ -37,9 +36,9 @@ namespace RussianLotto.Client
             if (State != SimulationState.Game)
                 return;
 
+            _bonuses.AutomaticMark.Use(_availbaleToMark);
             _bonuses.MarkMisses.Use(_board);
             _bonuses.Highlight.Use(_highlightedCells);
-            _bonuses.AutomaticMark.Use(_availbaleToMark);
 
             _availableNumbers.ExecuteFrame(time);
             _board.UpdateAllMissingNumbers(_availableNumbers);
@@ -86,6 +85,11 @@ namespace RussianLotto.Client
         {
             _availableNumbers.Visualize(view.AvailableNumbers);
             _board.Visualize(view.Board);
+        }
+
+        public void Visualize(IHighlightedCellsView view)
+        {
+            _highlightedCells.Visualize(view);
         }
     }
 }

@@ -1,6 +1,6 @@
-﻿using System;
-using BananaParty.BehaviorTree;
+﻿using BananaParty.BehaviorTree;
 using RussianLotto.Behavior;
+using RussianLotto.Command;
 using RussianLotto.Input;
 using RussianLotto.Networking;
 using RussianLotto.Save;
@@ -14,7 +14,8 @@ namespace RussianLotto.Client
         private readonly BehaviorNode _behaviorTree;
         private readonly Session _session;
 
-        public LocalClient(IOfflineMoneyEarn offlineMoneyEarn, INetwork network, IViewport viewport, IInput input)
+        public LocalClient(IOfflineMoneyEarn offlineMoneyEarn, INetwork network,
+            IViewport viewport, IInput input)
         {
             _session = new Session(offlineMoneyEarn, new GameSaves());
 
@@ -75,12 +76,22 @@ namespace RussianLotto.Client
 
                             new TimeoutNode
                             (
-                                new EnterRandomRoomNode(network.Room, input.MainMenu.ShuffledSwitch, input.MainMenu.GameTypeSwitch),
+                                new EnterRandomRoomNode(network.Room, input.MainMenu.ShuffledSwitch,
+                                    input.MainMenu.GameTypeSwitch),
                                 3000
                             ),
                         }, true, "FindGame"),
 
                         new HasMoneyToBetNode(_session, input.MainMenu.BetSwitch),
+
+                        new ClearCommandsNode<ISession>(network.Room.SessionInput),
+
+                        new SelectorNode(new IBehaviorNode[]
+                        {
+                            new IsSessionHasSimulationNode(_session).Invert(),
+                            new DeleteSimulationNode(_session).Invert(),
+                            new LoseBankNode(_session),
+                        }),
 
                         new ParallelSequenceNode(new IBehaviorNode[]
                         {
@@ -105,7 +116,7 @@ namespace RussianLotto.Client
                             {
                                 new ActivateInputNode(input.MainMenu.LeaveRoom).Invert(),
                                 new IsButtonPressedNode(input.MainMenu.LeaveRoom).Invert(),
-                                new ExitRoomNode(network.Room).Invert(),
+                                new ExitRoomNode(network.Room),
                             }, false, "ExitFromRoom").Repeat(),
 
                             new SequenceNode(new IBehaviorNode[]
@@ -118,13 +129,17 @@ namespace RussianLotto.Client
                                 new BetNode(_session, input.MainMenu.BetSwitch),
                                 new MultiplyBetByPlayersAmountNode(_session, network.Room),
 
+                                new ClearCommandsNode<ISession>(input.Session.Commands),
+
                                 new ParallelSelectorNode(new IBehaviorNode[]
                                 {
-                                    new IsSessionHasSimulationNode(_session).Invert().RepeatUntil(BehaviorNodeStatus.Success),
+                                    new IsSessionHasSimulationNode(_session).Invert()
+                                        .RepeatUntil(BehaviorNodeStatus.Success),
 
                                     new IsSimulationFinishedNode(_session).RepeatUntil(BehaviorNodeStatus.Success),
 
-                                    new ExecuteCommandsNode<ISession>(input.Session.Commands, _session, "Player").Repeat(),
+                                    new ExecuteCommandsNode<ISession>(input.Session.Commands, _session, "Player")
+                                        .Repeat(),
 
                                     new SequenceNode(new IBehaviorNode[]
                                     {
@@ -166,7 +181,8 @@ namespace RussianLotto.Client
 
                                 new ParallelSelectorNode(new IBehaviorNode[]
                                 {
-                                    new IsSessionHasSimulationNode(_session).Invert().RepeatUntil(BehaviorNodeStatus.Success),
+                                    new IsSessionHasSimulationNode(_session).Invert()
+                                        .RepeatUntil(BehaviorNodeStatus.Success),
 
                                     new SequenceNode(new IBehaviorNode[]
                                     {
@@ -189,7 +205,9 @@ namespace RussianLotto.Client
                                 new SequenceNode(new IBehaviorNode[]
                                 {
                                     new IsSessionHasSimulationNode(_session),
-                                    new RenderNode<ISimulationView, ISession>(viewport.SimulationView, _session)
+                                    new RenderNode<ISimulationView, ISession>(viewport.SimulationView, _session),
+                                    new RenderNode<IHighlightedCellsView, ISession>(
+                                        viewport.SimulationView.HighlightedCells, _session),
                                 }, false, "SimulationRendering").Repeat(),
 
                                 new SequenceNode(new IBehaviorNode[]

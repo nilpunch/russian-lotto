@@ -3,7 +3,6 @@ using RussianLotto.Behavior;
 using RussianLotto.Client;
 using RussianLotto.Networking;
 using RussianLotto.Tools;
-using RussianLotto.View;
 
 namespace RussianLotto.Master
 {
@@ -52,6 +51,7 @@ namespace RussianLotto.Master
                             new IsMasterGameFinishedNode(masterSimulation),
 
                             new WaitNode(5000).Invert(),
+                            new RoomHasMinPlayersAmountToStartNode(masterNetwork.Room).Invert(),
                             new PrepairMasterGameNode(masterSimulation),
                         }),
 

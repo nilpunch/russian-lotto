@@ -5,7 +5,7 @@ using UnityEngine;
 
 namespace RussianLotto.View
 {
-    public class BoardView : MonoBehaviour, IBoardView
+    public class BoardView : MonoBehaviour, IBoardView, IHighlightedCellsView
     {
         [SerializeField] private NumberView _missingNumberView;
         [SerializeField] private CardView[] _cards;
@@ -30,6 +30,22 @@ namespace RussianLotto.View
         public void HideLastMissingNumber()
         {
             _missingNumberView.Hide();
+        }
+
+        public void ShowHighlight(IEnumerable<(int, Vector2Int)> cardCells)
+        {
+            foreach (var card in _cards)
+            {
+                foreach (var cellView in card.Cells)
+                {
+                    cellView.Highlight(false);
+                }
+            }
+
+            foreach (var (highlightCard, highlightCell) in cardCells)
+            {
+                _cards[highlightCard].Cells.First(cell => cell.CellPosition == highlightCell).Highlight(true);
+            }
         }
     }
 }

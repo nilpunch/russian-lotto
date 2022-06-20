@@ -2,12 +2,10 @@
 
 namespace RussianLotto.Client
 {
-    public interface IBonus<in T> : ISerialization, IDeserialization
+    public interface IBonus<in TTarget> : ISerialization, IDeserialization
     {
         public int UsesLeft { get; }
-
         public void TopUp(int uses);
-
-        public void Use(T target);
+        public void Use(TTarget target);
     }
 }

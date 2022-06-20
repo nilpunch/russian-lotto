@@ -1,7 +1,4 @@
-﻿using System;
-using RussianLotto.Save;
-
-namespace RussianLotto.Client
+﻿namespace RussianLotto.Client
 {
     public interface IOfflineMoneyEarn
     {

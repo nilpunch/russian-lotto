@@ -1,5 +1,5 @@
 ﻿using BananaParty.BehaviorTree;
-using RussianLotto.View;
+using RussianLotto.Client;
 
 namespace RussianLotto.Behavior
 {

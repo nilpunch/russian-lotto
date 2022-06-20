@@ -28,6 +28,11 @@ namespace RussianLotto.Client
             return _cells.Count(cell => cell.Number == number && cell.IsAvailable);
         }
 
+        public IEnumerable<Vector2Int> AllAvailableCellsWithNumber(int number)
+        {
+            return _cells.Where(cell => cell.Number == number && cell.IsAvailable).Select(cell => cell.Position);
+        }
+
         public bool IsComplete()
         {
             return _cells.All(cell => cell.Status == CellStatus.Marked);

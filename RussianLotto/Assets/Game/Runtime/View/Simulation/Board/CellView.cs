@@ -1,4 +1,5 @@
 ﻿using System;
+using RussianLotto.Client;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
@@ -11,6 +12,7 @@ namespace RussianLotto.View
         [SerializeField] private Image _markImage;
         [SerializeField] private TextMeshProUGUI _numberText;
         [SerializeField] private TextMeshProUGUI _markNumberText;
+        [SerializeField] private Image _highlightImage;
         [field: SerializeField] public Vector2Int CellPosition { get; set; } = Vector2Int.zero;
         [field: SerializeField] public RectTransform RectTransform { get; private set; } = null;
 
@@ -19,6 +21,12 @@ namespace RussianLotto.View
         private void Awake()
         {
             SetStatus(CellStatus.Zero);
+            Highlight(false);
+        }
+
+        public void Highlight(bool isHighlighted)
+        {
+            _highlightImage.enabled = isHighlighted;
         }
 
         public void SetStatus(CellStatus cellStatus)

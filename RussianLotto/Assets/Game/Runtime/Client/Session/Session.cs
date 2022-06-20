@@ -164,5 +164,10 @@ namespace RussianLotto.Client
                 else
                     view.ShowLose();
         }
+
+        public void Visualize(IHighlightedCellsView view)
+        {
+            ReadOnlySimulation.Visualize(view);
+        }
     }
 }

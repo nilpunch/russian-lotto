@@ -1,4 +1,4 @@
-﻿namespace RussianLotto
+﻿namespace RussianLotto.Client
 {
     public enum CellStatus
     {

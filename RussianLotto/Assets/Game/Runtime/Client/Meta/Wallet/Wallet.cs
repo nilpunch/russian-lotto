@@ -1,7 +1,6 @@
 ﻿using System;
 using RussianLotto.Save;
 using RussianLotto.View;
-using UnityEngine;
 
 namespace RussianLotto.Client
 {

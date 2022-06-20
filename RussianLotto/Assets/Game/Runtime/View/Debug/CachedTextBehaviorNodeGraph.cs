@@ -11,10 +11,10 @@ namespace RussianLotto.View
 
         private readonly Dictionary<BehaviorNodeStatus, string> _statusToString = new()
         {
-            { BehaviorNodeStatus.Idle, "-" },
-            { BehaviorNodeStatus.Failure, "F" },
-            { BehaviorNodeStatus.Success, "S" },
-            { BehaviorNodeStatus.Running, "R" }
+            { BehaviorNodeStatus.Idle, "" },
+            { BehaviorNodeStatus.Failure, "" },
+            { BehaviorNodeStatus.Success, "" },
+            { BehaviorNodeStatus.Running, "" }
         };
 
         private readonly StringBuilder _stringBuilder = new();

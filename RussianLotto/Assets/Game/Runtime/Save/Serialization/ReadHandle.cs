@@ -1,7 +1,4 @@
-﻿using System;
-using UnityEngine;
-
-namespace RussianLotto.Save
+﻿namespace RussianLotto.Save
 {
     public class ReadHandle : IReadHandle
     {

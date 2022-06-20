@@ -36,6 +36,21 @@ namespace RussianLotto.Client
             return count;
         }
 
+        public IEnumerable<(int, Vector2Int)> AllAvailableToMarkCells(IReadOnlyAvailableNumbers availableNumbers)
+        {
+            foreach (int number in availableNumbers.Available)
+            {
+                for (var index = 0; index < _cards.Length; index++)
+                {
+                    var card = _cards[index];
+                    foreach (var cellPosition in card.AllAvailableCellsWithNumber(number))
+                    {
+                        yield return (index, cellPosition);
+                    }
+                }
+            }
+        }
+
         public bool IsAvailable(int card, Vector2Int cellPosition)
         {
             return _cards[card].IsAvailable(cellPosition);

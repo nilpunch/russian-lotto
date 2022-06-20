@@ -1,7 +1,7 @@
 ﻿namespace RussianLotto.Client
 {
-    public interface IFactory<out T>
+    public interface IFactory<out TType>
     {
-        T Create();
+        TType Create();
     }
 }

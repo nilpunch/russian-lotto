@@ -4,9 +4,9 @@ namespace RussianLotto.Master
 {
     public class IsMasterGamePreparationNode : BehaviorNode
     {
-        private readonly MasterSimulation _masterRoom;
+        private readonly IMasterSimulation _masterRoom;
 
-        public IsMasterGamePreparationNode(MasterSimulation masterRoom)
+        public IsMasterGamePreparationNode(IMasterSimulation masterRoom)
         {
             _masterRoom = masterRoom;
         }
