@@ -1,0 +1,20 @@
+{
+    "name": "RussianLotto.Runtime",
+    "rootNamespace": "RussianLotto",
+    "references": [
+        "GUID:607ff3f5d90f64847b4df9c2806b3720",
+        "GUID:9503a1d62ef696340b44109afe91fb39",
+        "GUID:6055be8ebefd69e48b49212b09b47b2f",
+        "GUID:86dfb3129c2753a4ebf053385d9f30fa",
+        "GUID:8f01a8ef5e72d2c47845fc052856a9e9"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}
